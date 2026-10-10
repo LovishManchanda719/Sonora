@@ -13,7 +13,7 @@ import {
   VolumeX,
   Ruler,
   UserCheck,
-  Sparkles,
+  ShieldCheck,
   ChevronDown,
   ChevronUp,
   AlertTriangle,
@@ -492,7 +492,7 @@ export default function ScreenPage() {
                               : "bg-emerald-100 text-emerald-800"
                           }`}
                         >
-                          ★ Sweet Spot
+                          Recommended
                         </span>
                       )}
                     </button>
@@ -573,7 +573,7 @@ export default function ScreenPage() {
         >
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-xl bg-[#14171A] text-vitality flex items-center justify-center shrink-0">
-              <Sparkles className="h-4 w-4" />
+              <ShieldCheck className="h-4 w-4" />
             </div>
             <div>
               <h2 className="text-xs sm:text-sm font-extrabold text-slate-900">
