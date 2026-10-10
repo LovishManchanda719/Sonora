@@ -1,147 +1,102 @@
-# DysarthriaNet-XC
+# Sonora — Clinical Neuromotor Speech Assessment & Rehabilitation Platform
+**Powered by `DysarthriaNet-XC`: Cross-Corpus Generalization, Layer Representation, and Domain Adaptation Benchmark in Speech-Based Dysarthria Assessment**
 
-**Cross-Corpus Generalization, Layer Representation, and Domain Adaptation Benchmark in Speech-Based Dysarthria Assessment**
-
----
-
-## 1. Executive Summary
-
-DysarthriaNet-XC is an empirical benchmarking framework investigating **cross-corpus generalizability, domain shift, and unsupervised domain adaptation** in speech-based dysarthria detection and severity classification.
-
-While state-of-the-art speech models routinely report 80% to 95% detection accuracy within single datasets, this repository demonstrates that such evaluations suffer from severe dataset overfitting: models memorize recording acoustics, background noise, or language phonetics rather than genuine neuromotor speech impairment. 
-
-### Key Discoveries:
-1. **The Cross-Corpus Generalization Gap**: Models achieving 66% to 87% balanced accuracy within-corpus collapse to near-chance levels (41.8% to 56.3%) when transferred zero-shot to unseen external corpora.
-2. **Heterogeneous CORAL Adaptation**: Regularized Correlation Alignment (CORAL) produces positive shifts in some pairs (e.g., TORGO -> EasyCall: +6.14 pp), but negative transfer in others (e.g., IPVS -> EasyCall: -6.54 pp).
-3. **The Severity Distortion Paradox**: Under CORAL adaptation, 3 of 4 severe TORGO speakers (`F01`, `M01`, `M02`) are systematically misclassified as **Mild** across the entire regularization sweep (`C` in `[1e-5, 1.0]`), collapsing severe clip recall from 26.7% to 5.1%.
-4. **Layer Representation Dynamics**: Low-level acoustic representations (Layer 1 of Wav2Vec 2.0) outperform final transformer representations (Layer 12) by **+8.30 pp** on Italian Parkinson's, capturing phonatory tremor and vocal stability better than semantic representations.
-5. **Forensic Recording Date Audit**: Analysis of Italian Parkinson's filenames revealed severe temporal collinearity: all Parkinson's patients concluded before March 2017, while all elderly controls were recorded after March 2017. A decision rule based solely on the filename date stamp achieves **94.29% balanced accuracy**.
+[![GitHub Repository](https://img.shields.io/badge/GitHub-LovishManchanda719%2FSonora-0284c7?logo=github)](https://github.com/LovishManchanda719/Sonora)
+[![Android APK](https://img.shields.io/badge/Android_APK-Sonora_v2.4-0d9488?logo=android)](./android/sonora-android.apk)
 
 ---
 
-## 2. Monorepo Repository Structure
+## 1. Platform Overview
 
-```
-dysarthria_project/
-├── .gitignore                         # Excludes raw audio, large embeddings, node_modules, and build artifacts
-├── README.md                          # High-level monorepo architectural documentation
-├── pyrefly.toml                       # Python type checker / workspace configuration
+**Sonora** is an end-to-end clinical speech telemetry, screening, and neuro-rehabilitation ecosystem built around the **DysarthriaNet-XC** acoustic engine (`TORGO` + `EasyCall` + `Italian Parkinson's` multi-corpus domain-aligned architecture).
+
+### Core Product Capabilities (Web + Native Android APK)
+1. **Dual-Mode Acoustic Screening Protocol**:
+   - **Standard 3-Task Clinical Battery (`~5s × 3`)**: Sustained Vowel `/a/` (5s), Diadochokinetic (DDK) `Pa-Ta-Ka` (5s), and Connected Sentence Reading (`"The grandfather clock chimes every hour."`).
+   - **Advanced Extended Statement Protocol (`3 × 15s / 30s ★ Sweet Spot / 45s`)**: Continuous multi-sentence standardized reading passages with a live high-contrast reading teleprompter, progress bar, and auto-stop to detect articulatory fatigue, respiratory phrasing decay, and prosodic drift.
+   - **Robust 2.0s Trimmed-Median Ambient Calibration**: Automatically trims the top 25% transient mic pops and bottom 15% silence drop-outs to establish an accurate room noise floor (`dB`).
+2. **Interactive Neuro-Rehabilitation Suite**:
+   - **Real-Time Visual Decibel (`dB SPL`) Biofeedback Meter** (`65 dB` clinical LSVT LOUD target line + sustained hold timer).
+   - **Digital Multi-Slot Pacing Board** (`45–120 BPM` metronome with syllable tap-to-pace slots and custom phrase builder).
+   - **Minimal Contrast Word Pair Drills** (`Voicing`, `Place`, `Manner`, `Cluster` phoneme contrasts with acoustic self-check).
+3. **Care & Clinical Directory**:
+   - **India RCI-Certified Speech-Language Pathologist (SLP) Locator** with live Haversine GPS distance sorting (`km`), hospital filters, and direct call/maps links (AIIMS New Delhi, NIMHANS Bengaluru, AYJNISHD Mumbai, AIISH Mysuru, PGIMER Chandigarh, CMC Vellore).
+   - **6 Practical Conversation Rules for Family & Caregivers** with clinical illustrations and printable communication cards.
+4. **Longitudinal Clinical Dossier & India Legal Compliance**:
+   - Multi-session trajectory comparison, CSV & Printable Clinical Dossier export, Google OAuth & Email/Password sync, and full regulatory modals (**India DPDP Act 2023**, **CDSCO Software-as-a-Medical-Device SaMD Non-Diagnostic Notice**, and **RCI Act 1992 Scope of Practice**).
+
+---
+
+## 2. Monorepo Architecture
+
+```text
+Sonora/
+├── web/                               # Next.js 16 + React 19 + Tailwind CSS v4 Web Application
+│   ├── public/
+│   │   ├── downloads/
+│   │   │   └── sonora-android.apk     # Signed Android APK served directly from the web app
+│   │   ├── icon.svg                   # Custom Sonora acoustic wave vector icon
+│   │   └── favicon.ico                # Multi-resolution browser tab icon
+│   └── src/
+│       ├── app/                       # App Router pages (/screen, /therapy/*, /find-slp, /profile, /about, /contact)
+│       ├── components/                # AudioRecorder, Navbar, Footer, LegalModal, Caregiver visuals
+│       └── lib/                       # Client acoustic fallback DSP, Firebase auth/storage, session store
 │
-├── ml_model/                          # Machine Learning Research, Benchmarking & Training
-│   ├── data/                          # Structured datasets (raw audio gitignored, metadata tracked)
-│   ├── src/                           # Reusable Python library package (CORAL, features, inference)
-│   ├── experiments/                   # Numbered experiment runners (exp1 to exp7)
-│   ├── models/                        # Serialized production bundles (dysarthrianet_unified_v1.joblib)
-│   ├── results/                       # Authoritative figures & 21+ CSV tables
-│   ├── tests/                         # Full ML test suite (28 passing unit tests)
-│   ├── notebooks/                     # Exploratory research notebooks
-│   └── requirements.txt               # Research dependencies (PyTorch, transformers, scikit-learn)
+├── android/                           # Native Android Application (ai.sonora.speech)
+│   ├── app/src/main/
+│   │   ├── AndroidManifest.xml        # Permissions for Mic, Location, Vibration, Hardware WebView
+│   │   ├── java/ai/sonora/speech/     # MainActivity.java + SonoraNative JS Bridge (Haptics, Print PDF, Share)
+│   │   └── assets/sonora_app.html     # 60 FPS Mobile UI + 16 kHz WAV Recorder + Hybrid Cloud/On-Device DSP
+│   ├── build_apk.py                   # Reproducible Android SDK build-tools APK compiler & signer
+│   └── sonora-android.apk             # Ready-to-install signed Android package
 │
 ├── backend/                           # Production FastAPI Microservice
 │   ├── app/
-│   │   ├── main.py                    # FastAPI entrypoint with CORS & lifespan warmup
-│   │   ├── core/                      # Configuration & settings
-│   │   ├── schemas/                   # Pydantic v2 data contracts (Clip & Session response)
-│   │   ├── services/                  # Audio preprocessing, decoding & model inference service
+│   │   ├── main.py                    # FastAPI entrypoint with CORS, rate-limiting & lifespan warmup
+│   │   ├── schemas/                   # Pydantic v2 contracts (Clip & Multi-Task Session response)
+│   │   ├── services/                  # 16 kHz Audio DSP, DysarthriaNet-XC inference & Clinical Report Agent
 │   │   └── api/                       # REST endpoints (/api/v1/health, /api/v1/screen/clip, /session)
-│   ├── models/                        # Self-contained production model bundle (59 KB)
-│   ├── tests/                         # Integration test suite (5 passing TestClient tests)
-│   ├── Dockerfile                     # Zero-cost container for HuggingFace Spaces / Render
-│   └── requirements.txt               # Lightweight backend dependencies
+│   └── models/                        # Self-contained production model bundle (dysarthrianet_unified_v1.joblib)
 │
-├── web/                               # Next.js 14 + Tailwind CSS Web Application (Ready for setup)
-│
-└── android/                           # Native Android Application (Kotlin + Jetpack Compose)
+└── ml_model/                          # DysarthriaNet-XC Research Benchmark, Experiments (exp1-exp7) & Tests
 ```
 
 ---
 
-## 3. Installation & Setup
+## 3. Quick Start
 
-### Environment Setup
+### A. Web Application (`web/`) — Vercel Ready
 ```bash
-# Clone the repository
-git clone https://github.com/your-repo/dysarthrianet-xc.git
-cd dysarthria_project
+cd web
+npm install
+npm run dev
+```
+Open `http://localhost:3000`. When deploying to **Vercel**, set the **Root Directory** to `web` (or deploy from root using the root `vercel.json`). The signed Android APK is automatically served at `/downloads/sonora-android.apk`.
 
-# Create a clean Python 3.10+ environment
-conda create -n dysarthria python=3.10 -y
-conda activate dysarthria
+### B. FastAPI Backend (`backend/`)
+```bash
+python -m uvicorn backend.app.main:app --reload --reload-dir backend --port 8000
+```
 
-# Install dependencies
-pip install -r requirements.txt
+### C. Android Application (`android/`)
+Install directly onto a connected Android device (USB or Wireless Debugging):
+```bash
+adb install -r android/sonora-android.apk
+```
+Or rebuild from source using the Android SDK `build-tools`:
+```bash
+python android/build_apk.py
 ```
 
 ---
 
-## 4. Reproducing the Experiments
+## 4. DysarthriaNet-XC Research Summary
 
-All experiments read from pre-computed feature representations in `data/` and save artifacts to `results/`.
+1. **The Cross-Corpus Generalization Gap**: Models achieving 66%–87% balanced accuracy within-corpus drop to 41.8%–56.3% when transferred zero-shot to unseen external corpora.
+2. **Heterogeneous CORAL Adaptation**: Regularized Correlation Alignment (CORAL) yields `+6.14 pp` on `TORGO -> EasyCall`, while domain-standardized multi-source pooling stabilizes cross-device inference.
+3. **Layer Representation Dynamics**: Early acoustic transformer layers (`Wav2Vec 2.0 Layer 1`) outperform semantic layers (`Layer 12`) by `+8.30 pp` on phonatory tremor and vocal stability detection.
+4. **Cost-Sensitive Severity Calibration**: Asymmetric clinical risk weighting recovers severe dysarthria recall without inflating false-positive screening rates.
 
-### Task 1: Source-Validated Cross-Corpus Transfer
-Evaluates inner 3-fold cross-validation on source data down to `C = 1e-7` and evaluates all 6 directional cross-corpus pairs with 10,000 speaker bootstrap draws:
-```bash
-python -m experiments.exp1_cross_corpus_transfer
-```
-
-### Task 2: CORAL Severity Distortion & C Sweep
-Evaluates the 4 severe TORGO speakers under CORAL adaptation across `C` in `[1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1.0]` and across Layers 1, 4, 12:
-```bash
-python -m experiments.exp2_severity_distortion
-```
-
-### Task 3: Layer Representation & Paired Nested CV
-Evaluates Layers 1, 4, 7, and 12, running strictly nested inner-CV layer selection against fixed Layer 12 models on identical outer folds:
-```bash
-python -m experiments.exp3_layer_representations
-```
-
-### Task 4: Class Weighting on EasyCall Severity
-Compares unweighted vs `class_weight='balanced'` on the imbalanced 3-class EasyCall severity task:
-```bash
-python -m experiments.exp4_class_weighting
-```
-
-### Task 5: Forensic Temporal Audit on Italian Parkinson's (IPVS)
-Audits filename date stamps across all 831 clips and runs subcohort evaluations:
-```bash
-python -m experiments.exp5_ipvs_temporal_audit
-```
-
-### Task 6: Multi-Source Domain Generalization
-Evaluates leave-one-corpus-out multi-source training across TORGO, EasyCall, and Italian Parkinson's, benchmarking Raw Pooling, Domain-Standardization, and CORAL Alignment against single-source baselines with 10,000 bootstrap draws:
-```bash
-python -m experiments.exp6_multisource_transfer
-```
-
-### Task 7: Cost-Sensitive Asymmetric Learning for Clinical Severity
-Evaluates asymmetric penalty multipliers on the severe class across cross-corpus (EasyCall -> TORGO) and within-corpus (EasyCall) settings, measuring expected clinical risk and severe speaker recovery:
-```bash
-python -m experiments.exp7_cost_sensitive_severity
-```
-
-### Generate Manuscript Figures & Tables
-```bash
-python -m src.visualization
-python -m src.tables
-```
-
-### Quality Assurance & Verification
-Run the 25-test unit suite validating data paths, audio preprocessing, model pipelines, SGKF group isolation, foundation model representations, multi-source structures, and cost-sensitive severity logic:
-```bash
-python -m unittest discover tests
-```
-
----
-
-## 5. Primary Citations & References
-
-1. **TORGO Database**:
-   - Rudzicz, F., Namasivayam, A. K., & Wolff, T. (2012). The TORGO database of acoustic and articulatory speech from speakers with dysarthria. *Language Resources and Evaluation*, 46(4), 523–541.
-   - DOI: `10.1007/s10579-011-9145-0`
-2. **EasyCall Corpus**:
-   - Turrisi, R., Braccia, A., Emanuele, M., Giulietti, S., Pugliatti, M., Sensi, M., Fadiga, L., & Badino, L. (2021). EasyCall Corpus: A Dysarthric Speech Dataset. *Proc. Interspeech 2021*, 41–45.
-   - DOI: `10.21437/Interspeech.2021-549`
-3. **Clinical Grounding**:
-   - Freed, D. B. (2020). *Motor Speech Disorders: Diagnosis and Treatment* (3rd ed.). Plural Publishing.
-   - NSW Adult Speech Pathology EBP Group. (2015). *Newcastle Dysarthria Assessment Tool (N-DAT)*.
+### Primary Citations
+- **TORGO Database**: Rudzicz, F., Namasivayam, A. K., & Wolff, T. (2012). *Language Resources and Evaluation*, 46(4), 523–541.
+- **EasyCall Corpus**: Turrisi, R., et al. (2021). *Proc. Interspeech 2021*, 41–45.
