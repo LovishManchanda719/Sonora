@@ -124,7 +124,7 @@ export default function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <a
-                  href="/downloads/sonora-android.apk"
+                  href="https://github.com/LovishManchanda719/Sonora/raw/main/android/sonora-android.apk"
                   download="Sonora-Android.apk"
                   className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/15 font-bold px-4 py-3 rounded-full text-xs transition-all"
                 >
@@ -282,7 +282,7 @@ export default function HomePage() {
 
             <div className="flex flex-wrap items-center gap-3 shrink-0">
               <a
-                href="/downloads/sonora-android.apk"
+                href="https://github.com/LovishManchanda719/Sonora/raw/main/android/sonora-android.apk"
                 download="Sonora-Android.apk"
                 className="inline-flex items-center gap-2 bg-[#14171A] hover:bg-black text-vitality font-extrabold px-6 py-3.5 rounded-full text-xs shadow-soft-md transition-all hover:scale-105"
               >

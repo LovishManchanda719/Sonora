@@ -16,13 +16,15 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy backend application code and model bundle
+RUN mkdir -p /app/backend && touch /app/backend/__init__.py
 COPY app/ ./backend/app/
 COPY models/ ./backend/models/
+COPY app.py ./backend/app.py
 
 # Expose standard port
 EXPOSE 7860
 ENV PORT=7860
 ENV PYTHONUNBUFFERED=1
 
-# Run FastAPI app with Uvicorn
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Run FastAPI app with Uvicorn (dynamically honoring $PORT for HF Spaces, Cloud Run, or Railway)
+CMD ["sh", "-c", "uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]

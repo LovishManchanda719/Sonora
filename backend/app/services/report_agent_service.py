@@ -4,8 +4,7 @@ Converts raw DysarthriaNet-XC model outputs into audience-tailored plain-languag
 1. 'health_worker': Community Health Worker / Clinician Screening Report (Phase 11)
 2. 'caregiver': Warm, reassuring Family & Caregiver Report clarifying motor control vs. cognition (Phase 12B.5)
 
-Supports LangChain + Google Gemini (ChatGoogleGenerativeAI) when GOOGLE_API_KEY / GEMINI_API_KEY
-is set, with an instant, deterministic N-DAT & Freed (2020) clinical fallback when offline.
+Grounded in deterministic N-DAT & Freed (2020) clinical rules.
 """
 
 import os
@@ -220,49 +219,7 @@ def generate_agent_report(
 ) -> Dict[str, Any]:
     """
     Phase 11 & Phase 12B.5 Report Generation Agent.
-    Uses LangChain ChatGoogleGenerativeAI if GOOGLE_API_KEY / GEMINI_API_KEY is available,
-    and seamlessly falls back to the deterministic clinical synthesis engine.
+    Uses the deterministic N-DAT & Freed (2020) clinical synthesis engine.
     """
     mode = "caregiver" if audience_mode == "caregiver" else "health_worker"
-    base_report = generate_deterministic_report(prediction_data, mode)
-
-    api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        return base_report
-
-    try:
-        from langchain_google_genai import ChatGoogleGenerativeAI
-
-        llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
-            google_api_key=api_key,
-            temperature=0.2,
-        )
-
-        if mode == "caregiver":
-            prompt = (
-                "Convert this dysarthria voice screening result into a warm, reassuring, plain-language "
-                "paragraph (3-4 sentences) for a patient's family member or caregiver. "
-                "Explicitly clarify that dysarthria affects physical speech motor control (muscles), NOT cognition, thinking, or intelligence. "
-                "Be clear this is a screening signal, not a final medical diagnosis, and suggest practical communication support and an SLP visit if flagged.\n\n"
-                f"Result: {prediction_data}"
-            )
-        else:
-            prompt = (
-                "Convert this dysarthria screening result into a concise, plain-language clinical triage "
-                "paragraph (3-4 sentences) for a community health worker or clinician. "
-                "Be clear this is a SCREENING SIGNAL, not a standalone diagnosis, reference the 3-task battery (vowel, DDK, connected speech), "
-                "and recommend referral to a speech-language pathologist (SLP) for confirmation when flagged.\n\n"
-                f"Result: {prediction_data}"
-            )
-
-        response = llm.invoke(prompt)
-        content = getattr(response, "content", None)
-        if isinstance(content, str) and len(content.strip()) > 30:
-            base_report["overview_paragraph"] = content.strip()
-            base_report["generated_by"] = "LangChain Gemini-1.5-Flash Report Agent"
-    except Exception:
-        # Keep deterministic clinical synthesis if LangChain or API call is unavailable
-        pass
-
-    return base_report
+    return generate_deterministic_report(prediction_data, mode)

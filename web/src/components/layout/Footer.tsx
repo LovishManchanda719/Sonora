@@ -27,7 +27,7 @@ export function Footer() {
             </p>
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <a
-                href="/downloads/sonora-android.apk"
+                href="https://github.com/LovishManchanda719/Sonora/raw/main/android/sonora-android.apk"
                 download="Sonora-Android.apk"
                 className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#14171A] hover:bg-black text-vitality text-[11px] font-bold shadow-soft-sm transition-all"
               >
@@ -89,7 +89,7 @@ export function Footer() {
           <p>© 2026 Sonora (DysarthriaNet-XC) Academic Research Initiative (India). Educational &amp; research use only — not medical advice.</p>
           <div className="flex flex-wrap items-center gap-5 font-medium">
             <a
-              href="/downloads/sonora-android.apk"
+              href="https://github.com/LovishManchanda719/Sonora/raw/main/android/sonora-android.apk"
               download="Sonora-Android.apk"
               className="hover:text-slate-900 font-bold text-clinical-cyan transition-colors"
             >

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { ClinicalProfile, DEFAULT_CLINICAL_PROFILE } from "@/lib/firestore";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const PROFILES_FILE = path.join(DATA_DIR, "profiles.json");
+const TMP_PROFILES_FILE = path.join(os.tmpdir(), "sonora_profiles.json");
 
 interface StoredUserProfileRecord {
   userId: string;
@@ -14,60 +16,88 @@ interface StoredUserProfileRecord {
   updatedAt: string;
 }
 
-function readProfilesStore(): Record<string, StoredUserProfileRecord> {
+function readJsonObj(filePath: string): Record<string, StoredUserProfileRecord> {
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") return parsed;
     }
-    if (!fs.existsSync(PROFILES_FILE)) {
-      fs.writeFileSync(PROFILES_FILE, "{}", "utf-8");
-      return {};
-    }
-    const raw = fs.readFileSync(PROFILES_FILE, "utf-8");
-    return JSON.parse(raw) || {};
-  } catch (err) {
-    console.error("Error reading profiles store:", err);
-    return {};
-  }
+  } catch {}
+  return {};
+}
+
+function readProfilesStore(): Record<string, StoredUserProfileRecord> {
+  const bundled = readJsonObj(PROFILES_FILE);
+  const tmp = readJsonObj(TMP_PROFILES_FILE);
+  return { ...bundled, ...tmp };
 }
 
 function writeProfilesStore(store: Record<string, StoredUserProfileRecord>) {
+  const payload = JSON.stringify(store, null, 2);
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    fs.writeFileSync(PROFILES_FILE, JSON.stringify(store, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Error writing profiles store:", err);
+    fs.writeFileSync(PROFILES_FILE, payload, "utf-8");
+  } catch {
+    try {
+      fs.writeFileSync(TMP_PROFILES_FILE, payload, "utf-8");
+    } catch (err) {
+      console.error("Error writing profiles store:", err);
+    }
   }
+}
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS });
 }
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
+    const email = searchParams.get("email")?.trim().toLowerCase();
 
-    if (!userId || userId === "guest") {
-      return NextResponse.json({
-        success: true,
-        profile: null,
-      });
+    if ((!userId || userId === "guest") && !email) {
+      return NextResponse.json(
+        {
+          success: true,
+          profile: null,
+        },
+        { headers: CORS_HEADERS }
+      );
     }
 
     const store = readProfilesStore();
-    const record = store[userId] || null;
+    let record = (userId && store[userId]) || null;
+    if (!record && email) {
+      record =
+        Object.values(store).find(
+          (r) => r.email && r.email.trim().toLowerCase() === email
+        ) || null;
+    }
 
-    return NextResponse.json({
-      success: true,
-      profile: record,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        profile: record,
+      },
+      { headers: CORS_HEADERS }
+    );
   } catch (err: unknown) {
     return NextResponse.json(
       {
         success: false,
         error: err instanceof Error ? err.message : "Failed to load profile",
       },
-      { status: 500 }
+      { status: 500, headers: CORS_HEADERS }
     );
   }
 }
@@ -80,7 +110,7 @@ export async function POST(request: NextRequest) {
     if (!userId || userId === "guest") {
       return NextResponse.json(
         { success: false, error: "Valid userId required" },
-        { status: 400 }
+        { status: 400, headers: CORS_HEADERS }
       );
     }
 
@@ -111,17 +141,20 @@ export async function POST(request: NextRequest) {
     store[userId] = updatedRecord;
     writeProfilesStore(store);
 
-    return NextResponse.json({
-      success: true,
-      profile: updatedRecord,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        profile: updatedRecord,
+      },
+      { headers: CORS_HEADERS }
+    );
   } catch (err: unknown) {
     return NextResponse.json(
       {
         success: false,
         error: err instanceof Error ? err.message : "Failed to save profile",
       },
-      { status: 500 }
+      { status: 500, headers: CORS_HEADERS }
     );
   }
 }

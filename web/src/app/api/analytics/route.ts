@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { ADMIN_EMAIL, StoredScreening, ContactInquiryRecord } from "@/lib/firestore";
 
@@ -55,30 +56,36 @@ interface AnalyticsStore {
   events: AnalyticsEventRecord[];
 }
 
+function tmpFallbackPath(filePath: string): string {
+  return path.join(os.tmpdir(), "sonora_" + path.basename(filePath));
+}
+
 function readJsonFile<T>(filePath: string, fallback: T): T {
-  try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify(fallback, null, 2), "utf-8");
-      return fallback;
-    }
-    const raw = fs.readFileSync(filePath, "utf-8");
-    return JSON.parse(raw) || fallback;
-  } catch {
-    return fallback;
+  const tmpPath = tmpFallbackPath(filePath);
+  for (const p of [tmpPath, filePath]) {
+    try {
+      if (fs.existsSync(p)) {
+        const raw = fs.readFileSync(p, "utf-8");
+        return JSON.parse(raw) || fallback;
+      }
+    } catch {}
   }
+  return fallback;
 }
 
 function writeJsonFile<T>(filePath: string, data: T) {
+  const payload = JSON.stringify(data, null, 2);
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Failed writing analytics store:", err);
+    fs.writeFileSync(filePath, payload, "utf-8");
+  } catch {
+    try {
+      fs.writeFileSync(tmpFallbackPath(filePath), payload, "utf-8");
+    } catch (err) {
+      console.error("Failed writing analytics store:", err);
+    }
   }
 }
 

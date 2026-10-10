@@ -2,8 +2,9 @@
 **Powered by `DysarthriaNet-XC`: Cross-Corpus Generalization, Layer Representation, and Domain Adaptation Benchmark in Speech-Based Dysarthria Assessment**
 
 [![GitHub Repository](https://img.shields.io/badge/GitHub-LovishManchanda719%2FSonora-0284c7?logo=github)](https://github.com/LovishManchanda719/Sonora)
-[![Android APK](https://img.shields.io/badge/Android_APK-Sonora_v2.4-0d9488?logo=android)](./android/sonora-android.apk)
+[![Download Android APK](https://img.shields.io/badge/Download_Android_APK-Sonora_v2.4-0d9488?logo=android)](https://github.com/LovishManchanda719/Sonora/raw/main/android/sonora-android.apk)
 
+> **Direct Android APK Download:** [**Click here to download `sonora-android.apk`**](https://github.com/LovishManchanda719/Sonora/raw/main/android/sonora-android.apk)
 ---
 
 ## 1. Platform Overview

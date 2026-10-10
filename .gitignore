@@ -111,6 +111,8 @@ out/
 .gradle/
 android/**/build/
 android/build_apk_out/
+android/local.properties
+*.idsig
 *.keystore
 *.apk
 !android/sonora-android.apk

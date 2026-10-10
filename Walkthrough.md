@@ -54,7 +54,7 @@ You are NOT installing anything on your personal laptops for the heavy compute �
 - `pandas`, `numpy` — data wrangling, the backbone of everything
 - `matplotlib`, `seaborn` — charts for your results section
 - `shap` — interpretability
-- `langchain` + an LLM API key (Gemini is free-tier friendly) — the report-generation layer
+- `langchain` — clinical report synthesis layer
 - `gradio` — the demo interface
 
 ### 1.4 GitHub repo structure (set this up now, empty folders are fine)
@@ -329,8 +329,8 @@ Takes your model's raw output (e.g., `{"prediction": "dysarthric", "confidence":
 
 ### 11.2 Simple implementation
 ```python
-from langchain_google_genai import ChatGoogleGenerativeAI
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+from backend.app.services.report_agent_service import generate_clinical_report
+report = generate_clinical_report(prediction_data, audience_mode="health_worker")
 
 prompt = f"""
 Convert this dysarthria screening result into a short, plain-language

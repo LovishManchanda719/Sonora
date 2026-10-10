@@ -3,12 +3,12 @@ import shutil
 import subprocess
 from PIL import Image, ImageDraw
 
-BASE_DIR = r"c:\Users\Lovish\Documents\dysarthria_project\android"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 APP_MAIN = os.path.join(BASE_DIR, "app", "src", "main")
 RES_DIR = os.path.join(APP_MAIN, "res")
 BUILD_DIR = os.path.join(BASE_DIR, "build_apk_out")
 
-SDK_DIR = r"C:\Users\Lovish\AppData\Local\Android\Sdk"
+SDK_DIR = os.environ.get("ANDROID_HOME") or os.path.join(os.path.expanduser("~"), "AppData", "Local", "Android", "Sdk")
 BUILD_TOOLS = os.path.join(SDK_DIR, "build-tools", "36.0.0")
 ANDROID_JAR = os.path.join(SDK_DIR, "platforms", "android-36", "android.jar")
 
@@ -181,7 +181,7 @@ def build_apk():
     run_cmd([APKSIGNER, "verify", "-v", final_apk_android])
 
     # Copy to web/public/downloads/sonora-android.apk
-    web_dl_dir = r"c:\Users\Lovish\Documents\dysarthria_project\web\public\downloads"
+    web_dl_dir = os.path.join(os.path.dirname(BASE_DIR), "web", "public", "downloads")
     os.makedirs(web_dl_dir, exist_ok=True)
     web_apk_path = os.path.join(web_dl_dir, "sonora-android.apk")
     shutil.copy2(final_apk_android, web_apk_path)
