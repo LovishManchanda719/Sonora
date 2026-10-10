@@ -1,0 +1,5 @@
+feature_set,classifier,accuracy,accuracy_std,macro_precision,macro_recall,macro_f1,weighted_f1,fold_accuracies
+MFCC Dynamics (78-D),LinearSVC (C=0.05),0.7137,0.1396,0.3703,0.3583,0.3498,0.632,"[0.7781, 0.7431, 0.6758, 0.8986, 0.4755]"
+Wav2Vec 2.0 (768-D),LinearSVC (C=0.05),0.7095,0.1436,0.3942,0.3783,0.3773,0.6541,"[0.7744, 0.7911, 0.619, 0.8849, 0.4787]"
+Multimodal Fusion (856-D),PyTorch Deep MLP,0.4838,0.1489,0.3767,0.3274,0.3471,0.5326,"[0.4734, 0.7352, 0.4735, 0.2675, 0.4584]"
+Multimodal Fusion (856-D),LinearSVC (C=0.05),0.7188,0.139,0.408,0.3897,0.3901,0.6653,"[0.7739, 0.8057, 0.6629, 0.875, 0.4771]"

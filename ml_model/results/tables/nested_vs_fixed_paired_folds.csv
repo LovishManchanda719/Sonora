@@ -1,0 +1,16 @@
+corpus,fold,fixed_l12_bacc,selected_layer,nested_bacc,paired_diff_pp
+TORGO,1,66.67,4,62.5,-4.17
+TORGO,2,55.02,1,50.99,-4.03
+TORGO,3,63.66,7,62.36,-1.31
+TORGO,4,93.78,12,93.78,0.0
+TORGO,5,78.45,4,77.95,-0.49
+EasyCall,1,75.44,4,77.81,2.36
+EasyCall,2,80.6,4,83.82,3.21
+EasyCall,3,83.36,4,83.79,0.43
+EasyCall,4,88.12,7,89.0,0.88
+EasyCall,5,89.38,4,91.58,2.19
+Italian_Parkinsons,1,94.04,1,97.37,3.33
+Italian_Parkinsons,2,83.15,1,93.21,10.05
+Italian_Parkinsons,3,88.31,1,92.53,4.22
+Italian_Parkinsons,4,85.63,1,96.87,11.23
+Italian_Parkinsons,5,86.2,1,98.88,12.68

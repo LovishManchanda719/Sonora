@@ -1,0 +1,5 @@
+feature_set,classifier,accuracy,accuracy_std,macro_precision,macro_recall,macro_f1,weighted_f1,fold_accuracies
+MFCC Dynamics,SVM (RBF),0.637,0.084,0.6029,0.6078,0.6044,0.6413,"[0.6332, 0.7274, 0.7303, 0.5746, 0.5165]"
+MFCC Dynamics,Random Forest,0.6885,0.0883,0.6423,0.6055,0.6084,0.6659,"[0.7144, 0.8084, 0.702, 0.6798, 0.5346]"
+eGeMAPSv02,SVM (RBF),0.6049,0.1908,0.5878,0.5969,0.5851,0.6145,"[0.4899, 0.9614, 0.5939, 0.4046, 0.565]"
+eGeMAPSv02,Random Forest,0.586,0.2065,0.5654,0.5717,0.563,0.5955,"[0.387, 0.9791, 0.5441, 0.4578, 0.556]"

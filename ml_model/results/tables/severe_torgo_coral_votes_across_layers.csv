@@ -1,0 +1,13 @@
+layer,speaker_id,clips,raw_pred,raw_votes_mild,raw_votes_mod,raw_votes_sev,coral_pred,coral_votes_mild,coral_votes_mod,coral_votes_sev,rerouted_to_mild
+1,F01,134,moderate,31,65,38,mild,99,26,9,True
+1,M01,386,moderate,36,283,67,mild,193,168,25,True
+1,M02,400,moderate,111,249,40,mild,238,145,17,True
+1,M04,421,moderate,60,188,173,mild,241,174,6,True
+4,F01,134,mild,60,55,19,mild,102,22,10,True
+4,M01,386,moderate,23,231,132,mild,207,150,29,True
+4,M02,400,moderate,38,307,55,mild,237,142,21,True
+4,M04,421,moderate,71,346,4,mild,259,155,7,True
+12,F01,134,moderate,48,76,10,mild,88,43,3,True
+12,M01,386,moderate,40,198,148,mild,201,140,45,True
+12,M02,400,moderate,32,305,63,mild,206,178,16,True
+12,M04,421,moderate,110,174,137,mild,213,204,4,True

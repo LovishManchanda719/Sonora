@@ -1,0 +1,23 @@
+# Core Machine Learning & Scientific Computing
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+scikit-learn>=1.2.0
+
+# Deep Learning & Foundation Models
+torch>=2.0.0
+torchaudio>=2.0.0
+transformers>=4.30.0
+
+# Speech & Audio Processing
+librosa>=0.10.0
+soundfile>=0.12.0
+opensmile>=2.4.0
+
+# Visualization & Reporting
+matplotlib>=3.7.0
+seaborn>=0.12.0
+tqdm>=4.65.0
+
+# Optional Gradient Boosting & Ensembles
+lightgbm>=3.3.0

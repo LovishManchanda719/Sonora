@@ -1,0 +1,66 @@
+speaker_id,cohort,label,clips,layer1_pred,layer1_corr,layer1_votes,layer12_pred,layer12_corr,layer12_votes,flipped
+YHC_Alberto R,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Alessandro M,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Alessandro P,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Arianna P,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Biagio P,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Daniele R,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Davide M,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Davide S,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Domenico T,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Gennaro T,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Giuseppe Andrea M,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Giuseppe M,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Luca S,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Nicolas M,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+YHC_Sara T,15 Young Healthy Control,control,3,control,True,0 dys / 3 ctrl,control,True,0 dys / 3 ctrl,False
+EHC_AGNESE P,22 Elderly Healthy Control,control,16,control,True,2 dys / 14 ctrl,control,True,6 dys / 10 ctrl,False
+EHC_ANGELA C,22 Elderly Healthy Control,control,16,control,True,1 dys / 15 ctrl,control,True,2 dys / 14 ctrl,False
+EHC_ANGELA G,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,0 dys / 16 ctrl,False
+EHC_ANTONIETTA P,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,2 dys / 14 ctrl,False
+EHC_ANTONIO C,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,0 dys / 16 ctrl,False
+EHC_BRIGIDA C,22 Elderly Healthy Control,control,16,control,True,4 dys / 12 ctrl,control,True,2 dys / 14 ctrl,False
+EHC_GILDA C,22 Elderly Healthy Control,control,16,control,True,3 dys / 13 ctrl,control,True,8 dys / 8 ctrl,False
+EHC_GIOVANNA G,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,4 dys / 12 ctrl,False
+EHC_GIOVANNI B,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,5 dys / 11 ctrl,False
+EHC_GRAZIA G,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,1 dys / 15 ctrl,False
+EHC_LEONARDA F,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,1 dys / 15 ctrl,False
+EHC_LISCO G,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,0 dys / 16 ctrl,False
+EHC_LUIGI P,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,1 dys / 15 ctrl,False
+EHC_MARIACRISTINA P,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,1 dys / 15 ctrl,False
+EHC_MICHELE G,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,5 dys / 11 ctrl,False
+EHC_NICOLA P,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,2 dys / 14 ctrl,False
+EHC_PORCELLI A,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,1 dys / 15 ctrl,False
+EHC_SUMMO L,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,4 dys / 12 ctrl,False
+EHC_TERESA M,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,0 dys / 16 ctrl,False
+EHC_VITANTONIO D,22 Elderly Healthy Control,control,13,control,True,5 dys / 8 ctrl,dysarthric,False,7 dys / 6 ctrl,True
+EHC_VITO A,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,2 dys / 14 ctrl,False
+EHC_VITO L,22 Elderly Healthy Control,control,16,control,True,0 dys / 16 ctrl,control,True,0 dys / 16 ctrl,False
+PD_1-5_Domenico C,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,15 dys / 1 ctrl,False
+PD_1-5_Felicetta C,28 People with Parkinson's disease,dysarthric,16,control,False,4 dys / 12 ctrl,control,False,2 dys / 14 ctrl,False
+PD_1-5_Leonarda L,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,15 dys / 1 ctrl,dysarthric,True,16 dys / 0 ctrl,False
+PD_1-5_Lucia R,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,13 dys / 3 ctrl,dysarthric,True,14 dys / 2 ctrl,False
+PD_1-5_Roberto R,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,14 dys / 2 ctrl,False
+PD_11-16_Anna B,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,15 dys / 1 ctrl,False
+PD_11-16_Michele C,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,16 dys / 0 ctrl,False
+PD_11-16_Nicola S,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,15 dys / 1 ctrl,False
+PD_11-16_Roberto L,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,16 dys / 0 ctrl,False
+PD_11-16_Roberto R,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,14 dys / 2 ctrl,False
+PD_11-16_Vito S,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,16 dys / 0 ctrl,False
+PD_17-28_Antonia G,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,15 dys / 1 ctrl,dysarthric,True,13 dys / 3 ctrl,False
+PD_17-28_Daria L,28 People with Parkinson's disease,dysarthric,15,dysarthric,True,15 dys / 0 ctrl,dysarthric,True,15 dys / 0 ctrl,False
+PD_17-28_Giovanni M,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,12 dys / 4 ctrl,False
+PD_17-28_Giovanni N,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,15 dys / 1 ctrl,False
+PD_17-28_Giulia L,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,16 dys / 0 ctrl,False
+PD_17-28_Giulia P,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,13 dys / 3 ctrl,False
+PD_17-28_Giustina M,28 People with Parkinson's disease,dysarthric,10,dysarthric,True,10 dys / 0 ctrl,dysarthric,True,10 dys / 0 ctrl,False
+PD_17-28_Mario B,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,16 dys / 0 ctrl,False
+PD_17-28_Nicola M,28 People with Parkinson's disease,dysarthric,14,dysarthric,True,14 dys / 0 ctrl,dysarthric,True,13 dys / 1 ctrl,False
+PD_17-28_Nicolò C,28 People with Parkinson's disease,dysarthric,14,dysarthric,True,14 dys / 0 ctrl,dysarthric,True,14 dys / 0 ctrl,False
+PD_17-28_Vito L,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,15 dys / 1 ctrl,False
+PD_17-28_Vito S,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,13 dys / 3 ctrl,False
+PD_6-10_Luigi B,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,13 dys / 3 ctrl,False
+PD_6-10_Nicola S,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,13 dys / 3 ctrl,False
+PD_6-10_Saverio S,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,14 dys / 2 ctrl,False
+PD_6-10_Ugo B,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,13 dys / 3 ctrl,False
+PD_6-10_Vito S,28 People with Parkinson's disease,dysarthric,16,dysarthric,True,16 dys / 0 ctrl,dysarthric,True,16 dys / 0 ctrl,False

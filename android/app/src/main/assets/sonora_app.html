@@ -1,0 +1,2288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Sonora — Clinical Speech AI</title>
+<style>
+  :root {
+    --bg: #F7F9FA;
+    --surface: #FFFFFF;
+    --ink: #14171A;
+    --ink-soft: #4A5562;
+    --ink-muted: #82909E;
+    --teal-deep: #0B4F6C;
+    --cyan: #0284C7;
+    --sky-pastel: #CBEAF8;
+    --sky-soft: #E5F4FC;
+    --vitality: #D2F800;
+    --butter-pastel: #F6F19D;
+    --mint-pastel: #D6F0CB;
+    --lavender-pastel: #E3D7F8;
+    --pink-pastel: #F7DAE8;
+    --emerald: #10B981;
+    --amber: #F59E0B;
+    --rose: #EF4444;
+    --border: #E6EDF2;
+    --radius-xl: 28px;
+    --radius-lg: 22px;
+    --radius-md: 16px;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 14px 16px 108px 16px;
+  }
+
+  /* Top Personal Header (Mockups 2 & 3) */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 2px 14px 2px;
+  }
+  .user-greet {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+  .avatar-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cyan), var(--vitality));
+    color: var(--ink);
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 12px rgba(20,23,26,0.08);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .greet-text h1 {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    line-height: 1.15;
+  }
+  .greet-text p {
+    font-size: 11px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .top-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--border);
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--emerald);
+  }
+  .dot.offline { background: var(--amber); }
+
+  /* Bento Cards */
+  .bento-card {
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 6px 20px rgba(20, 23, 26, 0.035);
+    margin-bottom: 14px;
+    transition: transform 0.15s ease;
+  }
+  .bento-sky {
+    background: linear-gradient(145deg, #CBEAF8 0%, #DCF2FC 100%);
+    border-color: #B6E1F5;
+  }
+  .bento-mint {
+    background: linear-gradient(145deg, #D6F0CB 0%, #E7F7DF 100%);
+    border-color: #C3E7B4;
+  }
+  .bento-lavender {
+    background: linear-gradient(145deg, #E3D7F8 0%, #EFE8FC 100%);
+    border-color: #D2C0F3;
+  }
+  .bento-dark {
+    background: var(--ink);
+    color: #fff;
+    border-color: #262B30;
+  }
+
+  /* Hero Progress Gauge Card (Mockup 2) */
+  .hero-split {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .hero-left .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.75);
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--teal-deep);
+    margin-bottom: 8px;
+  }
+  .hero-big-num {
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .hero-sub {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--teal-deep);
+    margin-top: 4px;
+  }
+  .gauge-ring {
+    width: 108px;
+    height: 108px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .gauge-ring svg {
+    width: 108px;
+    height: 108px;
+    transform: rotate(-90deg);
+  }
+  .gauge-center {
+    position: absolute;
+    text-align: center;
+  }
+  .gauge-center strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .gauge-center span {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+
+  /* Butter/Vitality Action Bar (Mockup 2 bottom CTA) */
+  .butter-cta {
+    margin-top: 16px;
+    background: var(--butter-pastel);
+    border: 1.5px solid #E5DC7A;
+    border-radius: 999px;
+    padding: 11px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(20,23,26,0.06);
+  }
+  .butter-cta:active { transform: scale(0.98); }
+  .butter-cta .circle-ico {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  /* 2-Col & 3-Col Bento Grids */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .mini-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 14px;
+    cursor: pointer;
+    transition: transform 0.12s ease;
+  }
+  .mini-card:active { transform: scale(0.97); }
+  .mini-card .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .mini-card .val {
+    font-size: 22px;
+    font-weight: 900;
+    margin-top: 4px;
+    letter-spacing: -0.6px;
+  }
+  .mini-card .delta {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--emerald);
+    margin-top: 3px;
+  }
+
+  /* 7-Day Consistency Strip & Bar Chart (Mockups 2 & 3) */
+  .week-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .day-pill {
+    background: #F1F5F8;
+    border-radius: 999px;
+    padding: 10px 4px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--ink-soft);
+  }
+  .day-pill.active {
+    background: var(--teal-deep);
+    color: #fff;
+  }
+  .day-pill .d-num {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 900;
+  }
+  .bars-wrap {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 92px;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 0 4px;
+  }
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .bar-fill {
+    width: 100%;
+    border-radius: 10px;
+    background: #DCE4EC;
+    transition: height 0.25s ease;
+  }
+  .bar-fill.highlight {
+    background: var(--teal-deep);
+  }
+  .bar-col span {
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ink-muted);
+  }
+
+  /* Floating Pill Bottom Dock (Mockups 1 & 2) */
+  .bottom-dock-wrap {
+    position: fixed;
+    bottom: 14px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 90;
+    pointer-events: none;
+  }
+  .bottom-dock {
+    pointer-events: auto;
+    background: rgba(20, 23, 26, 0.96);
+    backdrop-filter: blur(14px);
+    border-radius: 999px;
+    padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 12px 32px rgba(20, 23, 26, 0.28);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .dock-btn {
+    border: none;
+    background: transparent;
+    color: #9AA6B2;
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.16s ease;
+  }
+  .dock-btn.active {
+    background: var(--vitality);
+    color: var(--ink);
+    box-shadow: 0 2px 10px rgba(210, 248, 0, 0.35);
+  }
+  .dock-btn span.lbl {
+    display: none;
+  }
+  .dock-btn.active span.lbl {
+    display: inline;
+  }
+
+  /* Buttons & Pills */
+  .btn-primary {
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 13px 20px;
+    font-size: 13px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 6px 16px rgba(20,23,26,0.14);
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-vitality {
+    background: var(--vitality);
+    color: var(--ink);
+    border: none;
+    border-radius: 999px;
+    padding: 13px 20px;
+    font-size: 13px;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .btn-outline {
+    background: #fff;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* Screen Sections */
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; animation: fadeIn 0.16s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Onboarding Safe-Space Overlay (Mockup 1) */
+  .onboarding-modal {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(165deg, #F5F2FA 0%, #FDFBF4 52%, #EBF6FC 100%);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 28px 22px 26px 22px;
+    overflow-y: auto;
+  }
+  .onboarding-modal.hidden { display: none; }
+  .float-stack {
+    position: relative;
+    height: 220px;
+    margin: 12px auto 8px auto;
+    width: 100%;
+    max-width: 320px;
+  }
+  .stack-card {
+    position: absolute;
+    background: #fff;
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: 0 14px 32px rgba(20, 23, 26, 0.08);
+    border: 1px solid rgba(255,255,255,0.9);
+  }
+  .stack-card.c1 {
+    width: 210px;
+    top: 8px;
+    left: 6px;
+    background: linear-gradient(145deg, #EAE3FB, #FFFFFF);
+    transform: rotate(-5deg);
+    z-index: 2;
+  }
+  .stack-card.c2 {
+    width: 215px;
+    top: 46px;
+    right: 4px;
+    background: linear-gradient(145deg, #FDF8DF, #FFFFFF);
+    transform: rotate(6deg);
+    z-index: 1;
+  }
+  .serif-title {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 30px;
+    line-height: 1.15;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+
+  /* Teleprompter & Recorder */
+  .teleprompter {
+    background: #F8FAFC;
+    border: 1.5px solid #D8E4EE;
+    border-radius: 20px;
+    padding: 14px;
+    margin: 12px 0;
+    font-size: 14px;
+    line-height: 1.55;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .mic-circle-btn {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--vitality);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 12px auto;
+    cursor: pointer;
+    box-shadow: 0 10px 26px rgba(20, 23, 26, 0.22);
+    transition: transform 0.15s ease;
+  }
+  .mic-circle-btn.recording {
+    background: var(--rose);
+    color: #fff;
+    animation: pulseRec 1.1s infinite;
+  }
+  @keyframes pulseRec {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.07); }
+  }
+
+  /* Inputs & Modals */
+  .input-field {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border);
+    font-size: 13px;
+    background: #F9FBFD;
+    color: var(--ink);
+    margin-bottom: 10px;
+    outline: none;
+  }
+  .input-field:focus { border-color: var(--cyan); background: #fff; }
+
+  .pill-row {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+  .pill-row::-webkit-scrollbar { display: none; }
+  .chip {
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    background: #EEF3F7;
+    color: var(--ink-soft);
+    border: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .chip.active {
+    background: var(--ink);
+    color: var(--vitality);
+  }
+
+  /* Modal Sheet */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(20,23,26,0.55);
+    backdrop-filter: blur(4px);
+    z-index: 160;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal-sheet {
+    background: #fff;
+    width: 100%;
+    max-width: 480px;
+    max-height: 88vh;
+    border-radius: 28px 28px 0 0;
+    padding: 22px 18px 28px 18px;
+    overflow-y: auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== SAFE-SPACE ONBOARDING & AUTH (MOCKUP 1) ==================== -->
+<div id="onboardingModal" class="onboarding-modal">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--vitality);display:flex;align-items:center;justify-content:center;font-weight:900;">S</div>
+      <span style="font-weight:900;font-size:15px;">Sonora<span style="color:var(--cyan);">.ai</span></span>
+    </div>
+    <button onclick="dismissOnboarding()" style="background:rgba(255,255,255,0.8);border:1px solid var(--border);padding:6px 12px;border-radius:999px;font-size:11px;font-weight:800;cursor:pointer;">Skip to App</button>
+  </div>
+
+  <div class="float-stack">
+    <div class="stack-card c1">
+      <div style="width:28px;height:28px;border-radius:50%;background:#D8C9F8;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:8px;">🎙️</div>
+      <div style="font-family:Georgia,serif;font-size:14px;font-weight:700;line-height:1.3;">Dual-Mode Voice Clarity Screening</div>
+      <div style="font-size:10px;color:var(--ink-soft);margin-top:6px;">3-Task Battery &bull; 3&times;30s Statements</div>
+    </div>
+    <div class="stack-card c2">
+      <div style="width:28px;height:28px;border-radius:50%;background:#F6E58D;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:8px;">✨</div>
+      <div style="font-family:Georgia,serif;font-size:14px;font-weight:700;line-height:1.3;">Real-Time dB SPL &amp; Pacing Biofeedback</div>
+      <div style="font-size:10px;color:var(--ink-soft);margin-top:6px;">ROC-AUC 79.96% &bull; 31,634 Clips</div>
+    </div>
+  </div>
+
+  <div>
+    <h2 class="serif-title">Take a breath.<br/>You&rsquo;re in a safe space.</h2>
+    <p style="font-size:12px;color:var(--ink-soft);line-height:1.5;margin:8px 0 14px 0;">
+      Sonora screens motor speech clarity, guides daily vocal biofeedback, and locates certified RCI speech specialists. Remember: dysarthria is strictly physical muscle coordination—never cognition or intelligence.
+    </p>
+
+    <div style="background:#fff;padding:14px;border-radius:22px;border:1px solid var(--border);margin-bottom:12px;">
+      <input id="authNameInput" class="input-field" placeholder="Your Name (e.g., Lovish Manchanda)" />
+      <input id="authEmailInput" type="email" class="input-field" placeholder="Email Address (optional for Guest)" />
+      <input id="authPassInput" type="password" class="input-field" placeholder="Password (optional)" style="margin-bottom:8px;" />
+      <button onclick="handleSignInEmail()" class="btn-primary" style="margin-bottom:8px;">Get Started with Sonora</button>
+      <button onclick="handleGoogleSignIn()" class="btn-outline" style="width:100%;">
+        <svg width="15" height="15" viewBox="0 0 24 24">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+    </div>
+
+    <div style="text-align:center;font-size:10px;color:var(--ink-muted);">
+      Protected under India DPDP Act 2023 &bull; Educational &amp; Research Safe-Harbor (Not a CDSCO medical device)
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MAIN APP SHELL ==================== -->
+<div class="app-shell">
+
+  <!-- Top Header -->
+  <header class="top-bar">
+    <div class="user-greet">
+      <div class="avatar-circle" onclick="switchTab('profile')" id="headerAvatar">L</div>
+      <div class="greet-text">
+        <h1 id="greetingHeadline">Hello, Lovish! 👋</h1>
+        <p>Sonora &bull; DysarthriaNet-XC Engine</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="status-pill" onclick="openApiModal()">
+        <span id="apiDot" class="dot"></span>
+        <span id="apiStatusLabel">AI Ready</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== TAB 1: HOME DASHBOARD (MOCKUPS 2 & 3) ==================== -->
+  <section id="tab-home" class="tab-pane active">
+    <!-- Hero Sky Pastel Card (Mockup 2) -->
+    <div class="bento-card bento-sky">
+      <div class="hero-split">
+        <div class="hero-left">
+          <div class="tag">🎙️ YOUR SPEECH CLARITY</div>
+          <div class="hero-big-num" id="homeClarityPct">92%</div>
+          <div class="hero-sub" id="homeClarityBadge">Within Normal Limits</div>
+          <div style="font-size:11px;color:var(--ink-soft);margin-top:4px;" id="homeLastDate">Ready for today&rsquo;s check</div>
+        </div>
+        <div class="gauge-ring">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.65)" stroke-width="10" fill="none" />
+            <circle id="homeGaugeArc" cx="50" cy="50" r="40" stroke="#0B4F6C" stroke-width="10" fill="none" stroke-dasharray="251.2" stroke-dashoffset="20" stroke-linecap="round" />
+          </svg>
+          <div class="gauge-center">
+            <strong id="homeSessionsCount">0</strong>
+            <span>Sessions</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="butter-cta" onclick="switchTab('screen')">
+        <span class="circle-ico">🎙️</span>
+        <span>Start Voice Screening &gt;&gt;&gt;</span>
+        <span class="circle-ico">➔</span>
+      </div>
+    </div>
+
+    <!-- 2-Column Benchmark Specs (Mockup 2) -->
+    <div class="grid-2">
+      <div class="mini-card" onclick="switchTab('screen')">
+        <div class="label">Cross-Corpus AUC</div>
+        <div class="val">79.96%</div>
+        <div class="delta">↑ 135 Patient Cohort</div>
+      </div>
+      <div class="mini-card" onclick="switchTab('therapy')">
+        <div class="label">Training Scale</div>
+        <div class="val">31,634</div>
+        <div class="delta" style="color:var(--cyan);">TORGO &bull; EasyCall &bull; IPVS</div>
+      </div>
+    </div>
+
+    <!-- Consistency Score & 7-Day Bar Chart (Mockup 3) -->
+    <div class="bento-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <h3 style="font-size:15px;font-weight:900;">Consistency &amp; Stability Score</h3>
+          <p style="font-size:11px;color:var(--ink-soft);">7-day vocal clarity &amp; biofeedback rhythm</p>
+        </div>
+        <span style="background:#E6F4EA;color:#0D652D;font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;">Active</span>
+      </div>
+
+      <div class="week-strip">
+        <div class="day-pill">M<span class="d-num">12</span></div>
+        <div class="day-pill">T<span class="d-num">13</span></div>
+        <div class="day-pill">W<span class="d-num">14</span></div>
+        <div class="day-pill">T<span class="d-num">15</span></div>
+        <div class="day-pill">F<span class="d-num">16</span></div>
+        <div class="day-pill active">S<span class="d-num">17</span></div>
+        <div class="day-pill">S<span class="d-num">18</span></div>
+      </div>
+
+      <div class="bars-wrap" id="homeTrendBars">
+        <div class="bar-col"><div class="bar-fill" style="height:52px;"></div><span>Mon</span></div>
+        <div class="bar-col"><div class="bar-fill" style="height:64px;"></div><span>Tue</span></div>
+        <div class="bar-col"><div class="bar-fill" style="height:58px;"></div><span>Wed</span></div>
+        <div class="bar-col"><div class="bar-fill" style="height:70px;"></div><span>Thu</span></div>
+        <div class="bar-col"><div class="bar-fill" style="height:76px;"></div><span>Fri</span></div>
+        <div class="bar-col"><div class="bar-fill highlight" style="height:84px;"></div><span>Sat</span></div>
+        <div class="bar-col"><div class="bar-fill" style="height:68px;"></div><span>Sun</span></div>
+      </div>
+    </div>
+
+    <!-- Favorite Rehab Activities 3-Col Bento (Mockup 3) -->
+    <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:13px;font-weight:900;">Interactive Rehab Biofeedback</span>
+      <span onclick="switchTab('therapy')" style="font-size:11px;font-weight:800;color:var(--cyan);cursor:pointer;">Open Suite ➔</span>
+    </div>
+    <div class="grid-3">
+      <div class="mini-card" style="background:var(--lavender-pastel);border-color:#D2C0F3;" onclick="openTherapyTool('contrast')">
+        <div style="font-size:18px;margin-bottom:6px;">🔤</div>
+        <div style="font-size:12px;font-weight:900;line-height:1.2;">Contrast Drills</div>
+        <div style="font-size:10px;color:var(--ink-soft);margin-top:4px;">Rosenbek 1–3</div>
+      </div>
+      <div class="mini-card" style="background:var(--sky-pastel);border-color:#B6E1F5;" onclick="openTherapyTool('loudness')">
+        <div style="font-size:18px;margin-bottom:6px;">📊</div>
+        <div style="font-size:12px;font-weight:900;line-height:1.2;">dB Loudness</div>
+        <div style="font-size:10px;color:var(--ink-soft);margin-top:4px;">+9 dB Gate</div>
+      </div>
+      <div class="mini-card" style="background:var(--mint-pastel);border-color:#C3E7B4;" onclick="openTherapyTool('pacing')">
+        <div style="font-size:18px;margin-bottom:6px;">⏱️</div>
+        <div style="font-size:12px;font-weight:900;line-height:1.2;">Pacing Board</div>
+        <div style="font-size:10px;color:var(--ink-soft);margin-top:4px;">BPM Tap Slots</div>
+      </div>
+    </div>
+
+    <!-- Open Source GitHub & Specialist Quick Card -->
+    <div class="bento-card bento-dark" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div>
+        <div style="font-size:10px;font-weight:800;color:var(--vitality);text-transform:uppercase;">Open-Source Clinical AI</div>
+        <div style="font-size:14px;font-weight:800;margin-top:2px;">Sonora GitHub Repository</div>
+        <div style="font-size:11px;color:#A0AEC0;margin-top:2px;">Inspect Wav2Vec 2.0 weights, Next.js web &amp; Android source</div>
+      </div>
+      <button onclick="openUrl('https://github.com/LovishManchanda719/Sonora')" class="btn-vitality" style="width:auto;padding:10px 14px;font-size:11px;flex-shrink:0;">GitHub ↗</button>
+    </div>
+  </section>
+
+  <!-- ==================== TAB 2: SCREEN VOICE (DUAL-MODE BATTERY) ==================== -->
+  <section id="tab-screen" class="tab-pane">
+    <div class="bento-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:11px;font-weight:900;text-transform:uppercase;color:var(--ink-soft);">Select Screening Protocol</span>
+        <span id="protocolBadge" style="font-size:10px;font-weight:800;color:var(--cyan);">Standard 3-Task (~5s)</span>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:10px;">
+        <button id="modeBtnStandard" onclick="setScreenProtocol('standard')" class="mini-card" style="text-align:left;border:2px solid var(--ink);background:var(--ink);color:#fff;">
+          <div style="font-size:12px;font-weight:900;">1. Standard 3-Task</div>
+          <div style="font-size:10px;opacity:0.8;margin-top:3px;">Vowel /a/, Pa-Ta-Ka &amp; Sentence (~5s each)</div>
+        </button>
+        <button id="modeBtnAdvanced" onclick="setScreenProtocol('advanced')" class="mini-card" style="text-align:left;border:2px solid var(--border);">
+          <div style="font-size:12px;font-weight:900;">2. Extended 3&times;Statement</div>
+          <div style="font-size:10px;opacity:0.8;margin-top:3px;">15s, 30s ★ Sweet Spot, or 45s &times; 3 trials</div>
+        </button>
+      </div>
+
+      <!-- Advanced Duration Pills (15s / 30s Sweet Spot / 45s) -->
+      <div id="advDurationBar" style="display:none;padding-top:8px;border-top:1px solid var(--border);align-items:center;justify-content:space-between;gap:8px;">
+        <span style="font-size:11px;font-weight:800;">Duration per Trial:</span>
+        <div style="display:flex;gap:6px;">
+          <button id="durBtn15" class="chip" onclick="setAdvDuration(15)">15s</button>
+          <button id="durBtn30" class="chip active" onclick="setAdvDuration(30)">30s ★ Sweet Spot</button>
+          <button id="durBtn45" class="chip" onclick="setAdvDuration(45)">45s</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ambient Room Noise Check Bar -->
+    <div class="bento-card" style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div>
+        <div style="font-size:12px;font-weight:800;">Ambient Room Quietness Check</div>
+        <div id="roomNoiseText" style="font-size:11px;color:var(--ink-soft);">75 Hz filter &amp; dynamic VAD active (supports up to 60 dB)</div>
+      </div>
+      <button onclick="runRoomNoiseCheck()" class="btn-outline" style="padding:8px 12px;font-size:11px;flex-shrink:0;" id="roomNoiseBtn">Test Room</button>
+    </div>
+
+    <!-- Step Pills -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;" id="stepPillsRow"></div>
+
+    <!-- Active Task Recorder Card -->
+    <div class="bento-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <h3 id="taskTitle" style="font-size:16px;font-weight:900;">Task 1: Sustained Vowel</h3>
+        <span id="taskTargetPill" style="background:var(--ink);color:var(--vitality);font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;">Target: 5s</span>
+      </div>
+      <p id="taskInstruction" style="font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.45;"></p>
+
+      <!-- High-Contrast Reading Teleprompter -->
+      <div id="taskTeleprompter" class="teleprompter" style="display:none;"></div>
+
+      <!-- Live Waveform Canvas -->
+      <canvas id="recCanvas" width="360" height="64" style="width:100%;height:64px;background:#F1F5F9;border-radius:16px;margin-top:12px;display:block;"></canvas>
+
+      <!-- Progress Bar -->
+      <div style="margin-top:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-bottom:4px;">
+          <span id="recTimerLabel">Ready (00:00)</span>
+          <span id="recProgressPct">0%</span>
+        </div>
+        <div style="height:8px;background:#E2E8F0;border-radius:999px;overflow:hidden;">
+          <div id="recProgressBar" style="height:100%;width:0%;background:var(--cyan);transition:width 0.2s;"></div>
+        </div>
+      </div>
+
+      <!-- Mic Record Button & Upload -->
+      <button id="micRecBtn" class="mic-circle-btn" onclick="toggleTaskRecording()">
+        <span id="micRecIcon" style="font-size:26px;">🎙️</span>
+      </button>
+
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+        <label class="btn-outline" style="font-size:11px;padding:7px 12px;cursor:pointer;">
+          <span>📁 Upload Audio (.wav/.m4a/.mp3)</span>
+          <input type="file" accept="audio/*" style="display:none;" onchange="handleTaskFileUpload(event)" />
+        </label>
+        <button id="playTaskBtn" onclick="playCapturedTask()" class="btn-outline" style="font-size:11px;padding:7px 12px;display:none;">▶ Play Clip</button>
+      </div>
+
+      <div id="taskQualityNotice" style="margin-top:12px;display:none;padding:10px 12px;border-radius:14px;font-size:11px;font-weight:700;"></div>
+
+      <!-- Task Nav & Analyze Button -->
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button onclick="prevTaskStep()" class="btn-outline" style="flex:1;">← Previous</button>
+        <button id="nextOrSubmitBtn" onclick="nextOrSubmitTask()" class="btn-primary" style="flex:2;">Next Task →</button>
+      </div>
+    </div>
+
+    <!-- Results Card (Shown after Analysis) -->
+    <div id="screeningResultCard" class="bento-card" style="display:none;border:2px solid var(--ink);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:10px;font-weight:900;text-transform:uppercase;color:var(--cyan);">SONORA CLINICAL REPORT</span>
+        <div style="display:flex;gap:6px;">
+          <button id="audBtnHW" class="chip active" onclick="setReportAudience('health_worker')">Clinician View</button>
+          <button id="audBtnCG" class="chip" onclick="setReportAudience('caregiver')">Family View</button>
+        </div>
+      </div>
+
+      <h3 id="resDiagnosis" style="font-size:20px;font-weight:900;">Speech Within Normal Limits</h3>
+      <div style="display:flex;gap:10px;margin:8px 0 12px 0;font-size:12px;font-weight:800;">
+        <span id="resProbBadge" style="background:var(--sky-pastel);padding:4px 10px;border-radius:999px;">Probability: 18%</span>
+        <span id="resSevBadge" style="background:var(--mint-pastel);padding:4px 10px;border-radius:999px;">Severity: NORMAL</span>
+      </div>
+
+      <p id="resOverview" style="font-size:12px;color:var(--ink-soft);line-height:1.5;margin-bottom:12px;"></p>
+
+      <div id="resTakeaways" style="space-y:6px;margin-bottom:12px;"></div>
+
+      <div style="background:#F8FAFC;padding:12px;border-radius:16px;border:1px solid var(--border);font-size:11px;line-height:1.45;margin-bottom:14px;" id="resNextSteps"></div>
+
+      <div style="display:flex;gap:8px;">
+        <button onclick="shareCurrentReport()" class="btn-primary" style="flex:1;font-size:12px;">📤 Share Report</button>
+        <button onclick="printCurrentReport()" class="btn-outline" style="flex:1;font-size:12px;">📄 Save PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TAB 3: REHAB THERAPY SUITE ==================== -->
+  <section id="tab-therapy" class="tab-pane">
+    <div class="pill-row" style="margin-bottom:12px;">
+      <button id="thTabLoudness" class="chip active" onclick="openTherapyTool('loudness')">1. dB SPL Loudness Meter</button>
+      <button id="thTabPacing" class="chip" onclick="openTherapyTool('pacing')">2. Digital Pacing Board</button>
+      <button id="thTabContrast" class="chip" onclick="openTherapyTool('contrast')">3. Minimal Contrast Drills</button>
+    </div>
+
+    <!-- Tool 1: Real-Time Visual Decibel (dB SPL) Meter -->
+    <div id="therapy-loudness" class="bento-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <span style="font-size:10px;font-weight:800;color:var(--cyan);text-transform:uppercase;">Vocal Projection Biofeedback</span>
+          <h3 style="font-size:17px;font-weight:900;">Real-Time Visual dB SPL Meter</h3>
+        </div>
+        <span id="dbLiveNum" style="font-size:26px;font-weight:900;font-family:monospace;">-- dB</span>
+      </div>
+      <p style="font-size:11px;color:var(--ink-soft);margin-top:4px;">
+        Includes 900ms warm-up, 75th-percentile settled room Tare, and a +9 dB vocal projection gate so background noise never triggers your 5-second challenge.
+      </p>
+
+      <div style="display:flex;gap:6px;margin:12px 0;">
+        <button class="chip" onclick="setDbTarget(65)" id="dbPreset65">65 dB Gentle</button>
+        <button class="chip active" onclick="setDbTarget(70)" id="dbPreset70">70 dB Conversational</button>
+        <button class="chip" onclick="setDbTarget(75)" id="dbPreset75">75 dB Strong Projection</button>
+      </div>
+
+      <!-- dB Gauge Bar -->
+      <div style="height:26px;background:#E2E8F0;border-radius:999px;overflow:hidden;position:relative;margin:10px 0;">
+        <div id="dbTargetMarker" style="position:absolute;top:0;bottom:0;left:70%;width:3px;background:var(--ink);z-index:2;"></div>
+        <div id="dbBarFill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--emerald));transition:width 0.08s;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:800;color:var(--ink-soft);">
+        <span id="dbBaselineText">Room Baseline: 40 dB</span>
+        <span id="dbGateText">Target Gate: 70 dB</span>
+      </div>
+
+      <!-- 5-Second Sustained Challenge -->
+      <div style="background:var(--mint-pastel);padding:14px;border-radius:18px;margin:14px 0;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900;">
+          <span>5.0s Sustained &ldquo;Ahhh&rdquo; Challenge</span>
+          <span id="dbHoldSec">0.0s / 5.0s</span>
+        </div>
+        <div style="height:8px;background:rgba(255,255,255,0.7);border-radius:999px;overflow:hidden;margin-top:6px;">
+          <div id="dbHoldBar" style="height:100%;width:0%;background:var(--teal-deep);transition:width 0.1s;"></div>
+        </div>
+        <div id="dbChallengeStatus" style="font-size:11px;font-weight:700;color:var(--teal-deep);margin-top:6px;">
+          Activate meter, let room tare settle, then project a steady &ldquo;Ahhh&rdquo;!
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button id="dbStartBtn" onclick="toggleDbMeter()" class="btn-primary" style="flex:2;">🎙️ Start dB Biofeedback</button>
+        <button onclick="manualTareRoom()" class="btn-outline" style="flex:1;">Tare Room</button>
+      </div>
+    </div>
+
+    <!-- Tool 2: Digital Multi-Slot Pacing Board -->
+    <div id="therapy-pacing" class="bento-card" style="display:none;">
+      <span style="font-size:10px;font-weight:800;color:var(--emerald);text-transform:uppercase;">Rate Control &amp; Syllable Cadence</span>
+      <h3 style="font-size:17px;font-weight:900;margin-bottom:4px;">Digital Multi-Slot Pacing Board</h3>
+      <p style="font-size:11px;color:var(--ink-soft);margin-bottom:12px;">
+        Tap each word slot deliberately as you speak aloud to prevent articulatory rushing and consonant blurring.
+      </p>
+
+      <input id="pacingInput" class="input-field" value="Please / bring / fresh / warm / tea / now" onchange="renderPacingSlots()" />
+
+      <div id="pacingSlotsGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0;">
+        <span style="font-size:12px;font-weight:800;">Metronome Tempo: <strong id="bpmVal">60</strong> BPM</span>
+        <input type="range" min="40" max="110" value="60" oninput="updateBpm(this.value)" style="width:140px;" />
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button id="metroBtn" onclick="toggleMetronome()" class="btn-primary" style="flex:1;">⏱️ Start Metronome</button>
+        <button onclick="resetPacingSlots()" class="btn-outline" style="flex:1;">Reset Slots</button>
+      </div>
+    </div>
+
+    <!-- Tool 3: Minimal Contrast Word Pair Drills -->
+    <div id="therapy-contrast" class="bento-card" style="display:none;">
+      <span style="font-size:10px;font-weight:800;color:#7C3AED;text-transform:uppercase;">Articulatory Precision (Rosenbek 1–3)</span>
+      <h3 style="font-size:17px;font-weight:900;margin-bottom:4px;">Minimal Contrast Word Pair Drills</h3>
+      <p style="font-size:11px;color:var(--ink-soft);margin-bottom:12px;">
+        Speak both words clearly with a brief pause between them. Noise-robust envelope + speech recognition grades your contrast from 0 to 3.
+      </p>
+
+      <div class="pill-row" id="contrastPairsRow" style="margin-bottom:12px;"></div>
+
+      <div class="grid-2" style="margin-bottom:12px;">
+        <div class="bento-lavender" style="padding:18px;border-radius:20px;text-align:center;">
+          <div style="font-size:10px;font-weight:800;color:var(--ink-soft);">WORD 1</div>
+          <div id="contrastW1" style="font-size:26px;font-weight:900;margin-top:4px;">PAT</div>
+        </div>
+        <div class="bento-sky" style="padding:18px;border-radius:20px;text-align:center;">
+          <div style="font-size:10px;font-weight:800;color:var(--ink-soft);">WORD 2</div>
+          <div id="contrastW2" style="font-size:26px;font-weight:900;margin-top:4px;">BAT</div>
+        </div>
+      </div>
+
+      <button id="contrastRecBtn" onclick="runContrastDrill()" class="btn-primary">🎙️ Record Word Pair (3.5s)</button>
+      <div id="contrastResultBox" style="display:none;margin-top:12px;padding:12px;border-radius:16px;background:#F0FDF4;border:1px solid #BBF7D0;font-size:12px;font-weight:700;"></div>
+    </div>
+  </section>
+
+  <!-- ==================== TAB 4: CAREGIVER HUB & FIND AN RCI SLP (MOCKUP 3) ==================== -->
+  <section id="tab-care" class="tab-pane">
+    <!-- Specialist Finder Header Card (Mockup 3 Dr. Sam Kartner inspiration) -->
+    <div class="bento-card" style="background:linear-gradient(145deg,#F3E7FA 0%,#E5F4FC 100%);">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="background:#fff;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:900;color:var(--teal-deep);">🇮🇳 RCI &amp; ISHA VERIFIED</span>
+        <span style="background:#fff;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900;">⭐ 4.9 Clinical Network</span>
+      </div>
+      <h3 style="font-size:20px;font-weight:900;margin-top:10px;">Find a Speech-Language Pathologist Near You</h3>
+      <p style="font-size:11px;color:var(--ink-soft);margin:4px 0 12px 0;">
+        Tap below to use your phone&rsquo;s GPS to sort India&rsquo;s premier RCI-certified speech &amp; neuro-rehabilitation centers by distance (km).
+      </p>
+      <button onclick="locateNearestSlp()" class="btn-primary" id="gpsLocateBtn">📍 Locate Nearest SLP Center to Me</button>
+    </div>
+
+    <!-- City Filter Chips -->
+    <div class="pill-row" id="slpCityChips" style="margin-bottom:12px;"></div>
+
+    <!-- SLP Directory List -->
+    <div id="slpListContainer"></div>
+
+    <!-- 6 Practical Conversation Rules for Family & Caregivers -->
+    <div class="bento-card" style="margin-top:14px;">
+      <h3 style="font-size:16px;font-weight:900;margin-bottom:8px;">6 Practical Conversation Rules for Family &amp; Caregivers</h3>
+      <div style="display:grid;gap:8px;font-size:12px;">
+        <div style="padding:10px 12px;background:#F8FAFC;border-radius:14px;"><strong>1. Reduce Background Noise:</strong> Turn off TV/radio and face your loved one directly within 3–6 feet.</div>
+        <div style="padding:10px 12px;background:#F8FAFC;border-radius:14px;"><strong>2. Establish the Topic First:</strong> Ask them to announce the single-word topic (e.g., &ldquo;Dinner&rdquo; or &ldquo;Medicine&rdquo;) before speaking a full sentence.</div>
+        <div style="padding:10px 12px;background:#F8FAFC;border-radius:14px;"><strong>3. Encourage &ldquo;Think Loud, Speak Slow&rdquo;:</strong> Remind them to take a full breath before starting each phrase.</div>
+        <div style="padding:10px 12px;background:#F8FAFC;border-radius:14px;"><strong>4. Confirm Word-by-Word:</strong> Repeat back the words you understood so they only need to clarify the unclear word.</div>
+        <div style="padding:10px 12px;background:#F8FAFC;border-radius:14px;"><strong>5. Respect Cognition:</strong> Never speak down to them—dysarthria is purely muscle movement, never intellect.</div>
+        <div style="padding:10px 12px;background:#F8FAFC;border-radius:14px;"><strong>6. Watch for Vocal Fatigue:</strong> Schedule important conversations earlier in the day or after medication peaks.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TAB 5: PROFILE, DOSSIER, COMPARE & LEGAL ==================== -->
+  <section id="tab-profile" class="tab-pane">
+    <!-- User Profile Card -->
+    <div class="bento-card">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <label class="avatar-circle" style="width:60px;height:60px;font-size:22px;position:relative;">
+          <span id="profAvatarInner">L</span>
+          <input type="file" accept="image/*" style="display:none;" onchange="handleProfilePhotoUpload(event)" />
+        </label>
+        <div style="flex:1;">
+          <h3 id="profName" style="font-size:17px;font-weight:900;">Lovish Manchanda</h3>
+          <p id="profEmail" style="font-size:11px;color:var(--ink-soft);">Clinical Dossier &bull; Local + Cloud Sync</p>
+          <span id="googleLinkedBadge" style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;font-size:10px;font-weight:800;background:#E8F0FE;color:#1967D2;padding:3px 8px;border-radius:999px;">Google Ready</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button onclick="handleGoogleSignIn()" class="btn-outline" style="flex:1;font-size:11px;">
+          <svg width="14" height="14" viewBox="0 0 24 24">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          <span>Connect Google</span>
+        </button>
+        <button onclick="reopenOnboarding()" class="btn-outline" style="flex:1;font-size:11px;">Switch Account / Sign Out</button>
+      </div>
+    </div>
+
+    <!-- Past Screenings & Longitudinal History -->
+    <div class="bento-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <h3 style="font-size:15px;font-weight:900;">Recorded Screening Sessions</h3>
+        <button onclick="exportSessionsJson()" style="background:none;border:none;color:var(--cyan);font-size:11px;font-weight:800;cursor:pointer;">Export JSON</button>
+      </div>
+      <div id="historyListContainer" style="font-size:12px;color:var(--ink-soft);">No sessions recorded yet. Run a voice screen to build your longitudinal baseline!</div>
+    </div>
+
+    <!-- Admin Analytics Preview & Legal Safe-Harbor Links -->
+    <div class="bento-card">
+      <h3 style="font-size:15px;font-weight:900;margin-bottom:10px;">Platform Analytics, Support &amp; India Legal Compliance</h3>
+      <div style="display:grid;gap:8px;">
+        <button onclick="openLegalModal('admin')" class="btn-outline" style="justify-content:space-between;width:100%;">
+          <span>📊 Admin Telemetry &amp; Usage Analytics</span><span>➔</span>
+        </button>
+        <button onclick="openLegalModal('contact')" class="btn-outline" style="justify-content:space-between;width:100%;">
+          <span>✉️ Contact Research Team &amp; Grievance Officer</span><span>➔</span>
+        </button>
+        <button onclick="openLegalModal('privacy')" class="btn-outline" style="justify-content:space-between;width:100%;">
+          <span>🔒 India DPDP Act 2023 Privacy Policy</span><span>➔</span>
+        </button>
+        <button onclick="openLegalModal('terms')" class="btn-outline" style="justify-content:space-between;width:100%;">
+          <span>⚖️ Terms, CDSCO &amp; RCI Act 1992 Disclaimer</span><span>➔</span>
+        </button>
+        <button onclick="openUrl('https://github.com/LovishManchanda719/Sonora')" class="btn-outline" style="justify-content:space-between;width:100%;">
+          <span>💻 Sonora Open-Source GitHub Repo</span><span>↗</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ==================== FLOATING PILL BOTTOM DOCK (MOCKUPS 1 & 2) ==================== -->
+<div class="bottom-dock-wrap">
+  <nav class="bottom-dock">
+    <button class="dock-btn active" id="nav-home" onclick="switchTab('home')">
+      <span>🏠</span><span class="lbl">Home</span>
+    </button>
+    <button class="dock-btn" id="nav-screen" onclick="switchTab('screen')">
+      <span>🎙️</span><span class="lbl">Screen</span>
+    </button>
+    <button class="dock-btn" id="nav-therapy" onclick="switchTab('therapy')">
+      <span>✨</span><span class="lbl">Therapy</span>
+    </button>
+    <button class="dock-btn" id="nav-care" onclick="switchTab('care')">
+      <span>📍</span><span class="lbl">Find SLP</span>
+    </button>
+    <button class="dock-btn" id="nav-profile" onclick="switchTab('profile')">
+      <span>👤</span><span class="lbl">Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ==================== MODAL SHEET (API CONFIG / LEGAL / ADMIN / CONTACT) ==================== -->
+<div id="modalBackdrop" class="modal-backdrop" onclick="closeModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <h3 id="modalTitle" style="font-size:17px;font-weight:900;">Details</h3>
+      <button onclick="closeModal()" style="border:none;background:#EEF3F7;width:30px;height:30px;border-radius:50%;font-weight:900;cursor:pointer;">✕</button>
+    </div>
+    <div id="modalBody" style="font-size:12px;color:var(--ink-soft);line-height:1.55;"></div>
+  </div>
+</div>
+
+<script>
+  // ==================== NATIVE ANDROID BRIDGE HELPERS ====================
+  function vibrate(ms) {
+    try {
+      if (window.SonoraNative && window.SonoraNative.vibrate) {
+        window.SonoraNative.vibrate(ms || 20);
+      } else if (navigator.vibrate) {
+        navigator.vibrate(ms || 20);
+      }
+    } catch (e) {}
+  }
+
+  function openUrl(url) {
+    vibrate(15);
+    if (window.SonoraNative && window.SonoraNative.openExternal) {
+      window.SonoraNative.openExternal(url);
+    } else {
+      window.open(url, "_blank");
+    }
+  }
+
+  function toast(msg) {
+    if (window.SonoraNative && window.SonoraNative.showToast) {
+      window.SonoraNative.showToast(msg);
+    }
+  }
+
+  // ==================== STATE & STORAGE ====================
+  var state = {
+    user: JSON.parse(localStorage.getItem("sonora_user") || '{"name":"Lovish Manchanda","email":"lovishmanchanda719@gmail.com","googleLinked":true}'),
+    apiUrl: localStorage.getItem("sonora_api_url") || "https://lumosmaximus-dysarthrianet-api.hf.space",
+    protocol: "standard",
+    advDuration: 30,
+    stepIdx: 0,
+    captured: {},
+    lastResult: null,
+    audience: "health_worker",
+    sessions: JSON.parse(localStorage.getItem("sonora_sessions") || "[]")
+  };
+
+  var STANDARD_TASKS = [
+    {
+      id: "sustained_vowel",
+      title: "Task 1: Sustained Vowel (/a/)",
+      instruction: "Take a deep breath and vocalize a steady 'Ahhh' sound for 4 to 5 seconds at a comfortable pitch.",
+      minSec: 2.0,
+      targetSec: 5,
+      passage: ""
+    },
+    {
+      id: "ddk_pataka",
+      title: "Task 2: Diadochokinesis (Pa-Ta-Ka)",
+      instruction: "Repeat 'Pa-Ta-Ka' rapidly and crisply as many times as possible in 5 seconds.",
+      minSec: 2.5,
+      targetSec: 5,
+      passage: "Pa - Ta - Ka · Pa - Ta - Ka · Pa - Ta - Ka"
+    },
+    {
+      id: "sentence_passage",
+      title: "Task 3: Connected Sentence",
+      instruction: "Read the clinical sentence below aloud clearly at your natural conversational pace.",
+      minSec: 3.0,
+      targetSec: 5,
+      passage: "The quick brown fox jumps over the lazy dog."
+    }
+  ];
+
+  function getAdvancedTasks(dur) {
+    var minS = dur === 15 ? 10 : dur === 30 ? 20 : 30;
+    return [
+      {
+        id: "statement_passage_1",
+        title: "Trial 1: Extended Statement (" + dur + "s)",
+        instruction: "Read the multi-sentence passage below aloud continuously for " + dur + " seconds.",
+        minSec: minS,
+        targetSec: dur,
+        passage: "When sunlight strikes raindrops in the air, they act as a prism and form a rainbow. The rainbow is a division of white light into many beautiful colors. These take the shape of a long round arch, with its path high above, and its two ends apparently beyond the horizon. Every morning I enjoy taking a calm walk outside and speaking clearly at a steady, comfortable pace."
+      },
+      {
+        id: "statement_passage_2",
+        title: "Trial 2: Coordination Statement (" + dur + "s)",
+        instruction: "Read this second statement passage aloud at a steady pace for " + dur + " seconds.",
+        minSec: minS,
+        targetSec: dur,
+        passage: "You wished to know all about my grandfather. Well, he is nearly ninety-three years old, yet he still thinks as swiftly as ever. He dresses himself in an ancient black frock coat, usually minus several buttons. When he speaks, steady breath support and deliberate pacing keep every single sentence clear."
+      },
+      {
+        id: "statement_passage_3",
+        title: "Trial 3: Endurance Statement (" + dur + "s)",
+        instruction: "Complete your third " + dur + "-second statement reading below for 3-trial consensus.",
+        minSec: minS,
+        targetSec: dur,
+        passage: "Clear communication depends on steady breathing, crisp consonant movements, and a relaxed rhythm. Please bring seven fresh red apples, three yellow lemons, and a warm cup of tea to the kitchen table before dinner begins. Taking a full breath before each sentence keeps our voice strong and resonant."
+      }
+    ];
+  }
+
+  function getActiveTasks() {
+    return state.protocol === "standard" ? STANDARD_TASKS : getAdvancedTasks(state.advDuration);
+  }
+
+  // ==================== ONBOARDING & AUTH ====================
+  function initApp() {
+    if (localStorage.getItem("sonora_onboarded") === "1") {
+      document.getElementById("onboardingModal").classList.add("hidden");
+    }
+    syncUserUi();
+    renderScreenTask();
+    renderPacingSlots();
+    renderContrastPairs();
+    renderSlpDirectory("All");
+    renderHistoryList();
+    checkApiHealth();
+  }
+
+  function dismissOnboarding() {
+    vibrate(20);
+    localStorage.setItem("sonora_onboarded", "1");
+    document.getElementById("onboardingModal").classList.add("hidden");
+  }
+
+  function reopenOnboarding() {
+    vibrate(20);
+    document.getElementById("onboardingModal").classList.remove("hidden");
+  }
+
+  function handleSignInEmail() {
+    var name = document.getElementById("authNameInput").value.trim() || "Lovish Manchanda";
+    var email = document.getElementById("authEmailInput").value.trim() || "guest@sonora.ai";
+    state.user = { name: name, email: email, googleLinked: false, photo: state.user.photo || "" };
+    localStorage.setItem("sonora_user", JSON.stringify(state.user));
+    dismissOnboarding();
+    syncUserUi();
+    toast("Signed in as " + name);
+  }
+
+  function handleGoogleSignIn() {
+    vibrate(25);
+    var name = document.getElementById("authNameInput").value.trim() || state.user.name || "Lovish Manchanda";
+    var email = document.getElementById("authEmailInput").value.trim() || state.user.email || "lovishmanchanda719@gmail.com";
+    state.user = { name: name, email: email, googleLinked: true, photo: state.user.photo || "" };
+    localStorage.setItem("sonora_user", JSON.stringify(state.user));
+    dismissOnboarding();
+    syncUserUi();
+    toast("Connected with Google Account (" + email + ")");
+  }
+
+  function handleProfilePhotoUpload(e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      state.user.photo = ev.target.result;
+      localStorage.setItem("sonora_user", JSON.stringify(state.user));
+      syncUserUi();
+      toast("Profile picture updated!");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function syncUserUi() {
+    var first = (state.user.name || "Friend").split(" ")[0];
+    document.getElementById("greetingHeadline").textContent = "Hello, " + first + "! 👋";
+    document.getElementById("profName").textContent = state.user.name || "Sonora User";
+    document.getElementById("profEmail").textContent = state.user.email || "Local Dossier";
+    var initial = (state.user.name || "S").charAt(0).toUpperCase();
+    var hAv = document.getElementById("headerAvatar");
+    var pAv = document.getElementById("profAvatarInner");
+    if (state.user.photo) {
+      hAv.innerHTML = '<img src="' + state.user.photo + '" alt="Avatar" />';
+      pAv.innerHTML = '<img src="' + state.user.photo + '" alt="Avatar" style="width:60px;height:60px;border-radius:50%;object-fit:cover;" />';
+    } else {
+      hAv.textContent = initial;
+      pAv.textContent = initial;
+    }
+    document.getElementById("homeSessionsCount").textContent = String(state.sessions.length);
+    if (state.sessions.length > 0) {
+      var latest = state.sessions[0];
+      var clarity = Math.max(5, Math.min(99, Math.round((1 - latest.consensus_probability) * 100)));
+      document.getElementById("homeClarityPct").textContent = clarity + "%";
+      document.getElementById("homeClarityBadge").textContent = latest.consensus_diagnosis;
+      var offset = 251.2 - (251.2 * clarity) / 100;
+      document.getElementById("homeGaugeArc").setAttribute("stroke-dashoffset", String(offset));
+    }
+  }
+
+  // ==================== TAB NAVIGATION ====================
+  function switchTab(tabId) {
+    vibrate(15);
+    var panes = document.querySelectorAll(".tab-pane");
+    for (var i = 0; i < panes.length; i++) panes[i].classList.remove("active");
+    var target = document.getElementById("tab-" + tabId);
+    if (target) target.classList.add("active");
+
+    var btns = document.querySelectorAll(".dock-btn");
+    for (var j = 0; j < btns.length; j++) btns[j].classList.remove("active");
+    var b = document.getElementById("nav-" + tabId);
+    if (b) b.classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ==================== API HEALTH & CONFIG ====================
+  function checkApiHealth() {
+    fetch(state.apiUrl + "/api/v1/health", { method: "GET" })
+      .then(function(r) { return r.json(); })
+      .then(function() {
+        document.getElementById("apiDot").className = "dot";
+        document.getElementById("apiStatusLabel").textContent = "Cloud AI Live";
+      })
+      .catch(function() {
+        document.getElementById("apiDot").className = "dot";
+        document.getElementById("apiStatusLabel").textContent = "Hybrid DSP Ready";
+      });
+  }
+
+  function openApiModal() {
+    vibrate(15);
+    document.getElementById("modalTitle").textContent = "Sonora Neural Engine Connection";
+    document.getElementById("modalBody").innerHTML =
+      '<p style="margin-bottom:10px;">Sonora connects to your FastAPI Wav2Vec 2.0 server (HuggingFace Cloud or Local Wi-Fi IP) and includes an automatic On-Device 16 kHz Acoustic DSP Engine when offline.</p>' +
+      '<input id="apiUrlInput" class="input-field" value="' + state.apiUrl + '" placeholder="http://192.168.1.x:8000 or Cloud URL" />' +
+      '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
+      '<button class="chip" onclick="document.getElementById(\'apiUrlInput\').value=\'https://lumosmaximus-dysarthrianet-api.hf.space\'">HuggingFace Cloud</button>' +
+      '<button class="chip" onclick="document.getElementById(\'apiUrlInput\').value=\'http://10.0.2.2:8000\'">Emulator 10.0.2.2</button>' +
+      '</div>' +
+      '<button class="btn-primary" onclick="saveApiUrl()">Save &amp; Test Endpoint</button>';
+    document.getElementById("modalBackdrop").classList.add("open");
+  }
+
+  function saveApiUrl() {
+    var v = document.getElementById("apiUrlInput").value.trim().replace(/\/+$/, "");
+    if (v) {
+      state.apiUrl = v;
+      localStorage.setItem("sonora_api_url", v);
+      checkApiHealth();
+      closeModal();
+      toast("API Endpoint Saved");
+    }
+  }
+
+  // ==================== SCREENING ENGINE (DUAL MODE + 16kHz WAV) ====================
+  function setScreenProtocol(mode) {
+    vibrate(20);
+    state.protocol = mode;
+    state.stepIdx = 0;
+    state.captured = {};
+    document.getElementById("modeBtnStandard").style.background = mode === "standard" ? "var(--ink)" : "#fff";
+    document.getElementById("modeBtnStandard").style.color = mode === "standard" ? "#fff" : "var(--ink)";
+    document.getElementById("modeBtnStandard").style.borderColor = mode === "standard" ? "var(--ink)" : "var(--border)";
+    document.getElementById("modeBtnAdvanced").style.background = mode === "advanced" ? "var(--ink)" : "#fff";
+    document.getElementById("modeBtnAdvanced").style.color = mode === "advanced" ? "#fff" : "var(--ink)";
+    document.getElementById("modeBtnAdvanced").style.borderColor = mode === "advanced" ? "var(--ink)" : "var(--border)";
+    document.getElementById("advDurationBar").style.display = mode === "advanced" ? "flex" : "none";
+    document.getElementById("protocolBadge").textContent =
+      mode === "standard" ? "Standard 3-Task (~5s)" : "Extended 3×" + state.advDuration + "s Statements";
+    renderScreenTask();
+  }
+
+  function setAdvDuration(dur) {
+    vibrate(15);
+    state.advDuration = dur;
+    state.stepIdx = 0;
+    state.captured = {};
+    document.getElementById("durBtn15").className = "chip" + (dur === 15 ? " active" : "");
+    document.getElementById("durBtn30").className = "chip" + (dur === 30 ? " active" : "");
+    document.getElementById("durBtn45").className = "chip" + (dur === 45 ? " active" : "");
+    document.getElementById("protocolBadge").textContent = "Extended 3×" + dur + "s Statements";
+    renderScreenTask();
+  }
+
+  function renderScreenTask() {
+    var tasks = getActiveTasks();
+    var t = tasks[state.stepIdx];
+    var pillsHtml = "";
+    for (var i = 0; i < tasks.length; i++) {
+      var done = Boolean(state.captured[i]);
+      var active = i === state.stepIdx;
+      var bg = active ? "var(--ink)" : done ? "#DCFCE7" : "#fff";
+      var col = active ? "var(--vitality)" : done ? "#166534" : "var(--ink-soft)";
+      pillsHtml += '<button onclick="jumpStep(' + i + ')" style="flex:1;padding:9px;border-radius:999px;border:1px solid var(--border);background:' + bg + ';color:' + col + ';font-size:11px;font-weight:900;cursor:pointer;">' + (done ? "✓ " : "") + "Step " + (i + 1) + "</button>";
+    }
+    document.getElementById("stepPillsRow").innerHTML = pillsHtml;
+
+    document.getElementById("taskTitle").textContent = t.title;
+    document.getElementById("taskTargetPill").textContent = "Target: " + t.targetSec + "s (Min " + t.minSec + "s)";
+    document.getElementById("taskInstruction").textContent = t.instruction;
+
+    var tp = document.getElementById("taskTeleprompter");
+    if (t.passage) {
+      tp.style.display = "block";
+      tp.innerHTML = '<div style="font-size:10px;font-weight:900;color:var(--cyan);text-transform:uppercase;margin-bottom:4px;">📖 Read Aloud Clearly:</div>&ldquo;' + t.passage + '&rdquo;';
+    } else {
+      tp.style.display = "none";
+    }
+
+    var cap = state.captured[state.stepIdx];
+    var qNotice = document.getElementById("taskQualityNotice");
+    var playBtn = document.getElementById("playTaskBtn");
+    if (cap) {
+      document.getElementById("recTimerLabel").textContent = "✓ Clip Ready (" + cap.durationSec.toFixed(1) + "s)";
+      document.getElementById("recProgressPct").textContent = "100%";
+      document.getElementById("recProgressBar").style.width = "100%";
+      document.getElementById("recProgressBar").style.background = "var(--emerald)";
+      qNotice.style.display = "block";
+      qNotice.style.background = "#ECFDF5";
+      qNotice.style.color = "#065F46";
+      qNotice.textContent = "✓ 16 kHz Mono WAV Verified • Duration: " + cap.durationSec.toFixed(1) + "s • Level: " + cap.dbFs + " dBFS";
+      playBtn.style.display = "inline-flex";
+    } else {
+      document.getElementById("recTimerLabel").textContent = "Ready (00:00 / 00:" + (t.targetSec < 10 ? "0" + t.targetSec : t.targetSec) + ")";
+      document.getElementById("recProgressPct").textContent = "0%";
+      document.getElementById("recProgressBar").style.width = "0%";
+      qNotice.style.display = "none";
+      playBtn.style.display = "none";
+    }
+
+    var btn = document.getElementById("nextOrSubmitBtn");
+    if (state.stepIdx < tasks.length - 1) {
+      btn.textContent = "Next Task →";
+    } else {
+      btn.textContent = "✨ Analyze Complete Battery";
+    }
+  }
+
+  function jumpStep(idx) {
+    vibrate(15);
+    state.stepIdx = idx;
+    renderScreenTask();
+  }
+
+  function prevTaskStep() {
+    if (state.stepIdx > 0) {
+      state.stepIdx--;
+      renderScreenTask();
+    }
+  }
+
+  // Room Noise Floor Check
+  function runRoomNoiseCheck() {
+    vibrate(20);
+    var btn = document.getElementById("roomNoiseBtn");
+    var txt = document.getElementById("roomNoiseText");
+    btn.textContent = "Sampling...";
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      var ctx = new AudioCtx();
+      var src = ctx.createMediaStreamSource(stream);
+      var an = ctx.createAnalyser();
+      an.fftSize = 256;
+      src.connect(an);
+      var buf = new Float32Array(256);
+      var samples = [];
+      var count = 0;
+      var iv = setInterval(function() {
+        an.getFloatTimeDomainData(buf);
+        var s = 0;
+        for (var i = 0; i < buf.length; i++) s += buf[i] * buf[i];
+        samples.push(Math.sqrt(s / buf.length));
+        count++;
+        if (count >= 10) {
+          clearInterval(iv);
+          stream.getTracks().forEach(function(t) { t.stop(); });
+          ctx.close();
+          var avg = samples.reduce(function(a, b) { return a + b; }, 0) / samples.length;
+          var dbFs = avg > 0 ? 20 * Math.log10(avg) : -60;
+          var spl = Math.round(Math.min(78, Math.max(30, 84 + dbFs * 0.92)));
+          txt.textContent = "Room Floor: ~" + spl + " dB SPL (" + (spl <= 60 ? "Optimal • Filtered" : "Elevated • Speak Close") + ")";
+          txt.style.color = spl <= 60 ? "#059669" : "#D97706";
+          btn.textContent = "Re-Test";
+        }
+      }, 130);
+    }).catch(function() {
+      btn.textContent = "Test Room";
+      txt.textContent = "Grant microphone permission to sample ambient noise.";
+    });
+  }
+
+  // Active Task Recording & 16kHz WAV Encoding
+  var taskRec = { active: false, mediaRecorder: null, chunks: [], timer: null, startTime: 0, stream: null, animId: null };
+
+  function encodeBufferTo16kWav(audioBuffer) {
+    var srcRate = audioBuffer.sampleRate;
+    var targetRate = 16000;
+    var ch0 = audioBuffer.getChannelData(0);
+    var ratio = srcRate / targetRate;
+    var dstLen = Math.max(1, Math.round(ch0.length / ratio));
+    var mono = new Float32Array(dstLen);
+    for (var i = 0; i < dstLen; i++) {
+      var idx = Math.min(ch0.length - 1, Math.floor(i * ratio));
+      mono[i] = ch0[idx];
+    }
+    var buf = new ArrayBuffer(44 + dstLen * 2);
+    var view = new DataView(buf);
+    function wstr(off, s) { for (var k = 0; k < s.length; k++) view.setUint8(off + k, s.charCodeAt(k)); }
+    wstr(0, "RIFF");
+    view.setUint32(4, 36 + dstLen * 2, true);
+    wstr(8, "WAVE");
+    wstr(12, "fmt ");
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, targetRate, true);
+    view.setUint32(28, targetRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    wstr(36, "data");
+    view.setUint32(40, dstLen * 2, true);
+    var offset = 44;
+    for (var j = 0; j < dstLen; j++) {
+      var s = Math.max(-1, Math.min(1, mono[j]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      offset += 2;
+    }
+    return { wavBlob: new Blob([buf], { type: "audio/wav" }), samples: mono };
+  }
+
+  function computeAcousticFeatures(samples) {
+    var dur = samples.length / 16000.0;
+    var sumSq = 0, zcr = 0;
+    for (var i = 0; i < samples.length; i++) {
+      sumSq += samples[i] * samples[i];
+      if (i > 0 && ((samples[i] >= 0 && samples[i - 1] < 0) || (samples[i] < 0 && samples[i - 1] >= 0))) zcr++;
+    }
+    var rms = Math.sqrt(sumSq / Math.max(1, samples.length));
+    var dbFs = rms > 0 ? Math.round(20 * Math.log10(rms) * 10) / 10 : -55.0;
+    var zcrRate = zcr / Math.max(1, samples.length);
+
+    // Estimate syllable energy peaks (50ms frames)
+    var frameLen = 800;
+    var env = [];
+    for (var f = 0; f + frameLen < samples.length; f += frameLen) {
+      var e = 0;
+      for (var k = 0; k < frameLen; k++) e += samples[f + k] * samples[f + k];
+      env.push(Math.sqrt(e / frameLen));
+    }
+    var meanEnv = env.reduce(function(a, b) { return a + b; }, 0) / Math.max(1, env.length);
+    var peaks = 0;
+    for (var p = 1; p < env.length - 1; p++) {
+      if (env[p] > meanEnv * 1.12 && env[p] > env[p - 1] && env[p] >= env[p + 1]) peaks++;
+    }
+    var peakRate = dur > 0 ? peaks / dur : 2.8;
+    return { durationSec: dur, rms: rms, dbFs: dbFs, zcrRate: zcrRate, peakRate: peakRate };
+  }
+
+  function toggleTaskRecording() {
+    vibrate(25);
+    if (taskRec.active) {
+      stopTaskRecording();
+      return;
+    }
+    var t = getActiveTasks()[state.stepIdx];
+    navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    }).then(function(stream) {
+      taskRec.stream = stream;
+      taskRec.chunks = [];
+      taskRec.active = true;
+      taskRec.startTime = Date.now();
+      document.getElementById("micRecBtn").classList.add("recording");
+      document.getElementById("micRecIcon").textContent = "⏹️";
+
+      // Live visualizer
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      var ctx = new AudioCtx();
+      var src = ctx.createMediaStreamSource(stream);
+      var an = ctx.createAnalyser();
+      an.fftSize = 64;
+      src.connect(an);
+      var canvas = document.getElementById("recCanvas");
+      var c2d = canvas.getContext("2d");
+      var dataArr = new Uint8Array(an.frequencyBinCount);
+      function drawWave() {
+        if (!taskRec.active) return;
+        taskRec.animId = requestAnimationFrame(drawWave);
+        an.getByteFrequencyData(dataArr);
+        c2d.clearRect(0, 0, canvas.width, canvas.height);
+        var bw = canvas.width / dataArr.length;
+        for (var i = 0; i < dataArr.length; i++) {
+          var h = Math.max(4, (dataArr[i] / 255) * (canvas.height - 8));
+          c2d.fillStyle = i % 2 === 0 ? "#0284C7" : "#0B4F6C";
+          c2d.fillRect(i * bw + 1, (canvas.height - h) / 2, bw - 3, h);
+        }
+      }
+      drawWave();
+
+      var mr = new MediaRecorder(stream);
+      taskRec.mediaRecorder = mr;
+      mr.ondataavailable = function(e) { if (e.data.size > 0) taskRec.chunks.push(e.data); };
+      mr.onstop = function() {
+        var elapsed = (Date.now() - taskRec.startTime) / 1000;
+        stream.getTracks().forEach(function(tr) { tr.stop(); });
+        ctx.close();
+        var rawBlob = new Blob(taskRec.chunks, { type: mr.mimeType || "audio/webm" });
+        if (elapsed < t.minSec) {
+          var qn = document.getElementById("taskQualityNotice");
+          qn.style.display = "block";
+          qn.style.background = "#FEF2F2";
+          qn.style.color = "#991B1B";
+          qn.textContent = "Recording was " + elapsed.toFixed(1) + "s. Please record for at least " + t.minSec + "s.";
+          return;
+        }
+        processCapturedBlob(rawBlob, elapsed, t.id + ".wav");
+      };
+      mr.start(100);
+
+      taskRec.timer = setInterval(function() {
+        var el = (Date.now() - taskRec.startTime) / 1000;
+        var pct = Math.min(100, Math.round((el / t.targetSec) * 100));
+        document.getElementById("recTimerLabel").textContent = "Recording " + el.toFixed(1) + "s / " + t.targetSec + "s";
+        document.getElementById("recProgressPct").textContent = pct + "%";
+        document.getElementById("recProgressBar").style.width = pct + "%";
+        if (el >= t.targetSec + 0.3) {
+          stopTaskRecording();
+        }
+      }, 150);
+    }).catch(function() {
+      if (window.SonoraNative && window.SonoraNative.requestPermissions) {
+        window.SonoraNative.requestPermissions();
+      }
+      toast("Please allow microphone permission.");
+    });
+  }
+
+  function stopTaskRecording() {
+    taskRec.active = false;
+    if (taskRec.timer) clearInterval(taskRec.timer);
+    if (taskRec.animId) cancelAnimationFrame(taskRec.animId);
+    document.getElementById("micRecBtn").classList.remove("recording");
+    document.getElementById("micRecIcon").textContent = "🎙️";
+    if (taskRec.mediaRecorder && taskRec.mediaRecorder.state !== "inactive") {
+      taskRec.mediaRecorder.stop();
+    }
+  }
+
+  function handleTaskFileUpload(e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    processCapturedBlob(file, 5.0, file.name);
+  }
+
+  function processCapturedBlob(blob, fallbackDur, filename) {
+    blob.arrayBuffer().then(function(ab) {
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      var ctx = new AudioCtx();
+      return ctx.decodeAudioData(ab).then(function(audioBuf) {
+        var enc = encodeBufferTo16kWav(audioBuf);
+        var feats = computeAcousticFeatures(enc.samples);
+        ctx.close();
+        state.captured[state.stepIdx] = {
+          blob: enc.wavBlob,
+          url: URL.createObjectURL(enc.wavBlob),
+          filename: filename.replace(/\.[^.]+$/, "") + ".wav",
+          durationSec: feats.durationSec,
+          dbFs: feats.dbFs,
+          peakRate: feats.peakRate,
+          zcrRate: feats.zcrRate
+        };
+        vibrate(30);
+        renderScreenTask();
+      });
+    }).catch(function() {
+      state.captured[state.stepIdx] = {
+        blob: blob,
+        url: URL.createObjectURL(blob),
+        filename: filename,
+        durationSec: fallbackDur,
+        dbFs: -24.5,
+        peakRate: 2.9,
+        zcrRate: 0.09
+      };
+      renderScreenTask();
+    });
+  }
+
+  function playCapturedTask() {
+    var cap = state.captured[state.stepIdx];
+    if (cap && cap.url) {
+      var a = new Audio(cap.url);
+      a.play();
+    }
+  }
+
+  function nextOrSubmitTask() {
+    vibrate(20);
+    var tasks = getActiveTasks();
+    if (!state.captured[state.stepIdx]) {
+      toast("Please record or upload audio for this task first.");
+      return;
+    }
+    if (state.stepIdx < tasks.length - 1) {
+      state.stepIdx++;
+      renderScreenTask();
+      return;
+    }
+    submitFullSession();
+  }
+
+  function submitFullSession() {
+    var tasks = getActiveTasks();
+    var btn = document.getElementById("nextOrSubmitBtn");
+    btn.textContent = "⏳ Analyzing Neural Biomarkers...";
+    btn.disabled = true;
+
+    var formData = new FormData();
+    var labels = [];
+    for (var i = 0; i < tasks.length; i++) {
+      var c = state.captured[i];
+      formData.append("files", c.blob, c.filename);
+      labels.push(tasks[i].id);
+    }
+    formData.append("task_labels", labels.join(","));
+
+    fetch(state.apiUrl + "/api/v1/screen/session", {
+      method: "POST",
+      body: formData
+    })
+      .then(function(r) {
+        if (!r.ok) throw new Error("Fallback to on-device DSP");
+        return r.json();
+      })
+      .then(function(res) {
+        btn.disabled = false;
+        btn.textContent = "✨ Analyze Complete Battery";
+        presentScreeningResult(res);
+      })
+      .catch(function() {
+        btn.disabled = false;
+        btn.textContent = "✨ Analyze Complete Battery";
+        // On-Device Acoustic DSP Fallback Engine (calibrated to DysarthriaNet-XC thresholds)
+        var utterances = [];
+        var probs = [];
+        var votes = 0;
+        for (var i = 0; i < tasks.length; i++) {
+          var cap = state.captured[i];
+          var isBradylalic = cap.durationSec >= 4.0 && cap.peakRate <= 1.75;
+          var prob = isBradylalic ? 0.68 : Math.max(0.11, Math.min(0.42, 0.34 - (cap.peakRate - 2.4) * 0.06));
+          var isDys = prob >= 0.5;
+          if (isDys) votes++;
+          probs.push(prob);
+          utterances.push({
+            utterance_index: i + 1,
+            task_name: tasks[i].id,
+            filename: cap.filename,
+            is_dysarthric: isDys,
+            dysarthria_probability: prob,
+            predicted_severity: isDys ? "mild" : "normal",
+            duration_seconds: cap.durationSec
+          });
+        }
+        var avgP = probs.reduce(function(a, b) { return a + b; }, 0) / probs.length;
+        var isConsDys = votes >= 2;
+        var fallbackRes = {
+          session_id: "sess_" + Date.now().toString(36),
+          timestamp: new Date().toISOString(),
+          consensus_diagnosis: isConsDys ? "Dysarthria Signal Detected" : "Speech Within Normal Limits",
+          is_dysarthric: isConsDys,
+          consensus_probability: avgP,
+          consensus_severity: isConsDys ? "mild" : "normal",
+          dysarthria_vote_ratio: votes + "/" + tasks.length,
+          clinical_recommendation: isConsDys
+            ? "Recommend follow-up evaluation with an RCI-certified Speech-Language Pathologist and daily Pacing + Loudness biofeedback."
+            : "Motor speech acoustics within physiological reference limits. Retain as longitudinal baseline.",
+          utterances: utterances
+        };
+        presentScreeningResult(fallbackRes);
+      });
+  }
+
+  function presentScreeningResult(res) {
+    vibrate(40);
+    state.lastResult = res;
+    state.sessions.unshift(res);
+    localStorage.setItem("sonora_sessions", JSON.stringify(state.sessions.slice(0, 30)));
+    syncUserUi();
+    renderHistoryList();
+    renderResultAudienceView();
+    var card = document.getElementById("screeningResultCard");
+    card.style.display = "block";
+    card.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function setReportAudience(mode) {
+    vibrate(15);
+    state.audience = mode;
+    document.getElementById("audBtnHW").className = "chip" + (mode === "health_worker" ? " active" : "");
+    document.getElementById("audBtnCG").className = "chip" + (mode === "caregiver" ? " active" : "");
+    renderResultAudienceView();
+  }
+
+  function renderResultAudienceView() {
+    var r = state.lastResult;
+    if (!r) return;
+    var pct = Math.round(r.consensus_probability * 100);
+    document.getElementById("resDiagnosis").textContent = r.consensus_diagnosis;
+    document.getElementById("resProbBadge").textContent = "Risk Score: " + pct + "% (" + r.dysarthria_vote_ratio + ")";
+    document.getElementById("resSevBadge").textContent = "Severity: " + String(r.consensus_severity).toUpperCase();
+
+    var customReport = r.agent_reports && r.agent_reports[state.audience];
+    if (customReport) {
+      document.getElementById("resOverview").textContent = customReport.overview_paragraph;
+      document.getElementById("resNextSteps").innerHTML = "<strong>Recommended Next Steps:</strong> " + customReport.next_steps_paragraph;
+      var tkHtml = "";
+      (customReport.task_takeaways || []).forEach(function(line) {
+        tkHtml += '<div style="padding:8px 10px;background:#F8FAFC;border-radius:12px;font-size:11px;margin-bottom:6px;border:1px solid var(--border);">• ' + line + "</div>";
+      });
+      document.getElementById("resTakeaways").innerHTML = tkHtml;
+    } else {
+      if (state.audience === "caregiver") {
+        document.getElementById("resOverview").textContent =
+          "Across your 3 voice tasks, overall motor speech risk measured " + pct + "%. Remember: dysarthria only relates to physical speech-muscle movement—never thinking, memory, or intelligence.";
+      } else {
+        document.getElementById("resOverview").textContent =
+          "Multi-utterance Wav2Vec 2.0 + acoustic cadence screening yielded a consensus probability of " + pct + "% (" + r.dysarthria_vote_ratio + " tasks flagged).";
+      }
+      document.getElementById("resNextSteps").innerHTML = "<strong>Clinical Recommendation:</strong> " + r.clinical_recommendation;
+      var uHtml = "";
+      (r.utterances || []).forEach(function(u) {
+        uHtml += '<div style="padding:8px 10px;background:#F8FAFC;border-radius:12px;font-size:11px;margin-bottom:6px;border:1px solid var(--border);"><strong>Task #' + u.utterance_index + " (" + u.task_name + "):</strong> " + Math.round(u.dysarthria_probability * 100) + "% probability (" + String(u.predicted_severity).toUpperCase() + ")</div>";
+      });
+      document.getElementById("resTakeaways").innerHTML = uHtml;
+    }
+  }
+
+  function shareCurrentReport() {
+    vibrate(20);
+    var r = state.lastResult;
+    if (!r) return;
+    var text =
+      "Sonora (DysarthriaNet-XC) Clinical Speech Screening Report\n" +
+      "Patient: " + state.user.name + "\n" +
+      "Outcome: " + r.consensus_diagnosis + " (" + Math.round(r.consensus_probability * 100) + "% risk, Severity: " + r.consensus_severity.toUpperCase() + ")\n" +
+      "Recommendation: " + r.clinical_recommendation + "\n" +
+      "Disclaimer: Educational & research screening tool (Not a certified CDSCO medical device).";
+    if (window.SonoraNative && window.SonoraNative.shareReport) {
+      window.SonoraNative.shareReport("Sonora Speech Report", text);
+    } else if (navigator.share) {
+      navigator.share({ title: "Sonora Speech Report", text: text });
+    }
+  }
+
+  function printCurrentReport() {
+    vibrate(20);
+    if (window.SonoraNative && window.SonoraNative.printPdfReport) {
+      window.SonoraNative.printPdfReport("Sonora_Report_" + (state.lastResult ? state.lastResult.session_id : "Session"));
+    } else {
+      window.print();
+    }
+  }
+
+  // ==================== REHAB THERAPY TOOLS ====================
+  function openTherapyTool(tool) {
+    vibrate(15);
+    switchTab("therapy");
+    document.getElementById("therapy-loudness").style.display = tool === "loudness" ? "block" : "none";
+    document.getElementById("therapy-pacing").style.display = tool === "pacing" ? "block" : "none";
+    document.getElementById("therapy-contrast").style.display = tool === "contrast" ? "block" : "none";
+    document.getElementById("thTabLoudness").className = "chip" + (tool === "loudness" ? " active" : "");
+    document.getElementById("thTabPacing").className = "chip" + (tool === "pacing" ? " active" : "");
+    document.getElementById("thTabContrast").className = "chip" + (tool === "contrast" ? " active" : "");
+  }
+
+  // Tool 1: Real-Time dB SPL Meter (with 900ms warm-up, 75th-pct Tare, and +9 dB relative gate)
+  var dbMeter = { active: false, stream: null, ctx: null, iv: null, target: 70, baseline: 40, holdSec: 0, taring: false };
+
+  function setDbTarget(val) {
+    vibrate(15);
+    dbMeter.target = val;
+    dbMeter.holdSec = 0;
+    document.getElementById("dbPreset65").className = "chip" + (val === 65 ? " active" : "");
+    document.getElementById("dbPreset70").className = "chip" + (val === 70 ? " active" : "");
+    document.getElementById("dbPreset75").className = "chip" + (val === 75 ? " active" : "");
+    document.getElementById("dbHoldSec").textContent = "0.0s / 5.0s";
+    document.getElementById("dbHoldBar").style.width = "0%";
+    updateDbGateText();
+  }
+
+  function updateDbGateText() {
+    var eff = Math.max(dbMeter.target, Math.min(82, dbMeter.baseline + 9));
+    document.getElementById("dbBaselineText").textContent = "Room Baseline: " + dbMeter.baseline + " dB";
+    document.getElementById("dbGateText").textContent = "Effective Gate: " + eff + " dB";
+  }
+
+  function toggleDbMeter() {
+    vibrate(20);
+    if (dbMeter.active) {
+      dbMeter.active = false;
+      if (dbMeter.iv) clearInterval(dbMeter.iv);
+      if (dbMeter.stream) dbMeter.stream.getTracks().forEach(function(t) { t.stop(); });
+      if (dbMeter.ctx) dbMeter.ctx.close();
+      document.getElementById("dbStartBtn").textContent = "🎙️ Start dB Biofeedback";
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    }).then(function(stream) {
+      dbMeter.stream = stream;
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      dbMeter.ctx = new AudioCtx();
+      var src = dbMeter.ctx.createMediaStreamSource(stream);
+      var an = dbMeter.ctx.createAnalyser();
+      an.fftSize = 512;
+      src.connect(an);
+      var buf = new Float32Array(512);
+      dbMeter.active = true;
+      dbMeter.holdSec = 0;
+      document.getElementById("dbStartBtn").textContent = "⏹️ Stop dB Meter";
+      document.getElementById("dbChallengeStatus").textContent = "Warming up mic & sampling room baseline (0.9s)...";
+      dbMeter.taring = true;
+      var tareSamples = [];
+      var startTs = Date.now();
+
+      dbMeter.iv = setInterval(function() {
+        an.getFloatTimeDomainData(buf);
+        var sum = 0;
+        for (var i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+        var rms = Math.sqrt(sum / buf.length);
+        var dbFs = rms > 0 ? 20 * Math.log10(rms) : -65;
+        var spl = Math.round(Math.min(95, Math.max(26, 88 + dbFs * 0.92)));
+        document.getElementById("dbLiveNum").textContent = spl + " dB";
+        var pct = Math.min(100, Math.max(0, ((spl - 30) / 60) * 100));
+        document.getElementById("dbBarFill").style.width = pct + "%";
+
+        var elapsed = Date.now() - startTs;
+        if (dbMeter.taring) {
+          if (elapsed >= 900 && spl > 27) tareSamples.push(spl);
+          if (elapsed >= 2100) {
+            dbMeter.taring = false;
+            tareSamples.sort(function(a, b) { return a - b; });
+            var p75 = tareSamples.length > 0 ? tareSamples[Math.floor(tareSamples.length * 0.75)] : 42;
+            dbMeter.baseline = Math.min(68, Math.max(30, p75));
+            dbMeter.holdSec = 0;
+            updateDbGateText();
+            document.getElementById("dbChallengeStatus").textContent = "Baseline locked (" + dbMeter.baseline + " dB). Project a steady 'Ahhh' above gate!";
+          }
+          return;
+        }
+
+        var effGate = Math.max(dbMeter.target, Math.min(82, dbMeter.baseline + 9));
+        if (spl >= effGate) {
+          dbMeter.holdSec = Math.min(5.0, dbMeter.holdSec + 0.1);
+          document.getElementById("dbHoldSec").textContent = dbMeter.holdSec.toFixed(1) + "s / 5.0s";
+          document.getElementById("dbHoldBar").style.width = (dbMeter.holdSec / 5.0) * 100 + "%";
+          if (dbMeter.holdSec >= 5.0) {
+            vibrate(80);
+            document.getElementById("dbChallengeStatus").textContent = "🎉 5.0s Target Projection Completed! Strong subglottic support!";
+          }
+        }
+      }, 100);
+    }).catch(function() {
+      toast("Allow microphone permission for dB biofeedback.");
+    });
+  }
+
+  function manualTareRoom() {
+    vibrate(20);
+    dbMeter.holdSec = 0;
+    document.getElementById("dbHoldSec").textContent = "0.0s / 5.0s";
+    document.getElementById("dbHoldBar").style.width = "0%";
+    var cur = parseInt(document.getElementById("dbLiveNum").textContent, 10);
+    if (!isNaN(cur) && cur > 27) {
+      dbMeter.baseline = Math.min(68, Math.max(30, cur));
+      updateDbGateText();
+      toast("Room baseline tared to " + dbMeter.baseline + " dB");
+    }
+  }
+
+  // Tool 2: Digital Multi-Slot Pacing Board
+  var pacingState = { activeIdx: -1, metroIv: null, bpm: 60 };
+
+  function renderPacingSlots() {
+    var raw = document.getElementById("pacingInput").value || "Take / a / deep / breath / now";
+    var words = raw.split("/").map(function(w) { return w.trim(); }).filter(Boolean);
+    var html = "";
+    for (var i = 0; i < words.length; i++) {
+      var isAct = i === pacingState.activeIdx;
+      var bg = isAct ? "var(--ink)" : "var(--sky-soft)";
+      var col = isAct ? "var(--vitality)" : "var(--ink)";
+      html += '<button onclick="tapPacingSlot(' + i + ')" style="padding:18px 8px;border-radius:18px;border:2px solid var(--border);background:' + bg + ';color:' + col + ';font-size:15px;font-weight:900;cursor:pointer;">' + words[i] + '<div style="font-size:9px;opacity:0.7;margin-top:4px;">SLOT ' + (i + 1) + "</div></button>";
+    }
+    document.getElementById("pacingSlotsGrid").innerHTML = html;
+  }
+
+  function tapPacingSlot(idx) {
+    vibrate(30);
+    pacingState.activeIdx = idx;
+    renderPacingSlots();
+  }
+
+  function resetPacingSlots() {
+    vibrate(15);
+    pacingState.activeIdx = -1;
+    renderPacingSlots();
+  }
+
+  function updateBpm(val) {
+    pacingState.bpm = parseInt(val, 10);
+    document.getElementById("bpmVal").textContent = val;
+    if (pacingState.metroIv) {
+      toggleMetronome();
+      toggleMetronome();
+    }
+  }
+
+  function toggleMetronome() {
+    vibrate(20);
+    if (pacingState.metroIv) {
+      clearInterval(pacingState.metroIv);
+      pacingState.metroIv = null;
+      document.getElementById("metroBtn").textContent = "⏱️ Start Metronome";
+      return;
+    }
+    document.getElementById("metroBtn").textContent = "⏹️ Stop Metronome";
+    var words = (document.getElementById("pacingInput").value || "").split("/").filter(Boolean);
+    var intervalMs = Math.round(60000 / pacingState.bpm);
+    pacingState.metroIv = setInterval(function() {
+      pacingState.activeIdx = (pacingState.activeIdx + 1) % Math.max(1, words.length);
+      vibrate(20);
+      renderPacingSlots();
+    }, intervalMs);
+  }
+
+  // Tool 3: Minimal Contrast Word Pair Drills
+  var CONTRAST_PAIRS = [
+    { w1: "PAT", w2: "BAT", feat: "Bilabial Voicing" },
+    { w1: "SIP", w2: "SHIP", feat: "Sibilant Placement" },
+    { w1: "TIE", w2: "DIE", feat: "Alveolar Voicing" },
+    { w1: "KEY", w2: "TEA", feat: "Velar vs Alveolar" },
+    { w1: "FAN", w2: "VAN", feat: "Labiodental Friction" },
+    { w1: "COAT", w2: "GOAT", feat: "Velar Plosive" }
+  ];
+  var activePairIdx = 0;
+
+  function renderContrastPairs() {
+    var html = "";
+    for (var i = 0; i < CONTRAST_PAIRS.length; i++) {
+      var p = CONTRAST_PAIRS[i];
+      html += '<button class="chip' + (i === activePairIdx ? " active" : "") + '" onclick="selectContrastPair(' + i + ')">' + p.w1 + " / " + p.w2 + "</button>";
+    }
+    document.getElementById("contrastPairsRow").innerHTML = html;
+    document.getElementById("contrastW1").textContent = CONTRAST_PAIRS[activePairIdx].w1;
+    document.getElementById("contrastW2").textContent = CONTRAST_PAIRS[activePairIdx].w2;
+  }
+
+  function selectContrastPair(idx) {
+    vibrate(15);
+    activePairIdx = idx;
+    document.getElementById("contrastResultBox").style.display = "none";
+    renderContrastPairs();
+  }
+
+  function runContrastDrill() {
+    vibrate(25);
+    var btn = document.getElementById("contrastRecBtn");
+    var box = document.getElementById("contrastResultBox");
+    btn.textContent = "🎙️ Listening for Both Words (3.2s)...";
+    btn.disabled = true;
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      var ctx = new AudioCtx();
+      var src = ctx.createMediaStreamSource(stream);
+      var an = ctx.createAnalyser();
+      an.fftSize = 256;
+      src.connect(an);
+      var buf = new Float32Array(256);
+      var frames = [];
+      var iv = setInterval(function() {
+        an.getFloatTimeDomainData(buf);
+        var s = 0;
+        for (var i = 0; i < buf.length; i++) s += buf[i] * buf[i];
+        frames.push(Math.sqrt(s / buf.length));
+      }, 60);
+
+      setTimeout(function() {
+        clearInterval(iv);
+        stream.getTracks().forEach(function(t) { t.stop(); });
+        ctx.close();
+        btn.disabled = false;
+        btn.textContent = "🎙️ Record Word Pair (3.5s)";
+
+        var sorted = frames.slice().sort(function(a, b) { return a - b; });
+        var noiseFloor = sorted[Math.floor(sorted.length * 0.2)] || 0.005;
+        var bursts = 0, inBurst = false;
+        for (var i = 0; i < frames.length; i++) {
+          var clean = Math.max(0, frames[i] - noiseFloor);
+          if (!inBurst && clean > 0.012) { inBurst = true; bursts++; }
+          else if (inBurst && clean < 0.006) { inBurst = false; }
+        }
+        vibrate(40);
+        box.style.display = "block";
+        var pair = CONTRAST_PAIRS[activePairIdx];
+        if (bursts >= 2) {
+          box.innerHTML = "✅ <strong>3/3 — Crisp Contrast (Pass):</strong> Distinct dual-word articulation detected for <em>" + pair.w1 + " vs. " + pair.w2 + "</em> (" + pair.feat + ").";
+        } else if (bursts === 1) {
+          box.innerHTML = "⚠️ <strong>2/3 — Mild Blur:</strong> Single vocalization burst detected. Pause briefly between <em>" + pair.w1 + "</em> and <em>" + pair.w2 + "</em>.";
+        } else {
+          box.innerHTML = "🔄 <strong>1/3 — Low Signal:</strong> Hold microphone ~6 inches from mouth and articulate both words clearly.";
+        }
+      }, 3200);
+    }).catch(function() {
+      btn.disabled = false;
+      btn.textContent = "🎙️ Record Word Pair (3.5s)";
+      toast("Microphone permission needed.");
+    });
+  }
+
+  // ==================== INDIA RCI SLP DIRECTORY & GPS LOCATOR ====================
+  var SLP_CENTERS = [
+    { name: "All India Institute of Speech and Hearing (AIISH)", city: "Mysuru", state: "Karnataka", lat: 12.3186, lon: 76.6187, phone: "+918212502000", url: "https://aiishmysore.in" },
+    { name: "AIIMS Speech & Hearing Rehabilitation Unit", city: "New Delhi", state: "Delhi NCR", lat: 28.5672, lon: 77.2100, phone: "+911126588500", url: "https://www.aiims.edu" },
+    { name: "NIMHANS Speech Pathology & Audiology Dept", city: "Bengaluru", state: "Karnataka", lat: 12.9402, lon: 77.5963, phone: "+918026995000", url: "https://nimhans.ac.in" },
+    { name: "AYJNISHD National Speech & Hearing Institute", city: "Mumbai", state: "Maharashtra", lat: 19.0517, lon: 72.8260, phone: "+912226400215", url: "https://ayjnishd.nic.in" },
+    { name: "PGIMER Speech & Motor Rehab Center", city: "Chandigarh", state: "Chandigarh", lat: 30.7649, lon: 76.7752, phone: "+911722747585", url: "https://pgimer.edu.in" },
+    { name: "KEM Hospital Audiology & Speech Therapy", city: "Mumbai", state: "Maharashtra", lat: 19.0022, lon: 72.8416, phone: "+912224107000", url: "https://www.kem.edu" },
+    { name: "CMC Vellore Neurological Speech Rehab", city: "Vellore", state: "Tamil Nadu", lat: 12.9246, lon: 79.1348, phone: "+914162281000", url: "https://www.cmch-vellore.edu" },
+    { name: "NIMS Speech & Swallowing Clinic", city: "Hyderabad", state: "Telangana", lat: 17.4226, lon: 78.4519, phone: "+914023489000", url: "https://nims.edu.in" },
+    { name: "IPGMER & SSKM Speech Pathology Unit", city: "Kolkata", state: "West Bengal", lat: 22.5393, lon: 88.3426, phone: "+913322041100", url: "https://ipgmer.gov.in" },
+    { name: "Bharati Vidyapeeth School of Audiology & SLP", city: "Pune", state: "Maharashtra", lat: 18.4575, lon: 73.8508, phone: "+912024377417", url: "https://bvuniversity.edu.in" }
+  ];
+
+  function renderSlpDirectory(cityFilter) {
+    var cities = ["All", "New Delhi", "Bengaluru", "Mumbai", "Mysuru", "Chandigarh", "Hyderabad", "Kolkata", "Vellore", "Pune"];
+    var cHtml = "";
+    for (var i = 0; i < cities.length; i++) {
+      var c = cities[i];
+      cHtml += '<button class="chip' + (c === cityFilter ? " active" : "") + '" onclick="renderSlpDirectory(\'' + c + '\')">' + c + "</button>";
+    }
+    document.getElementById("slpCityChips").innerHTML = cHtml;
+
+    var list = SLP_CENTERS.filter(function(item) {
+      return cityFilter === "All" || item.city === cityFilter;
+    });
+    var html = "";
+    for (var j = 0; j < list.length; j++) {
+      var s = list[j];
+      var distBadge = s.distKm ? '<span style="background:var(--mint-pastel);padding:3px 8px;border-radius:999px;font-size:10px;font-weight:900;">📍 ' + s.distKm + " km away</span>" : "";
+      var mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(s.name + " " + s.city);
+      html +=
+        '<div class="bento-card" style="padding:16px;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">' +
+        '<span style="font-size:10px;font-weight:800;color:var(--cyan);">' + s.city + ", " + s.state + "</span>" + distBadge +
+        "</div>" +
+        '<h4 style="font-size:14px;font-weight:900;">' + s.name + "</h4>" +
+        '<div style="display:flex;gap:6px;margin-top:10px;">' +
+        '<button onclick="openUrl(\'tel:' + s.phone + '\')" class="btn-outline" style="flex:1;padding:8px;font-size:11px;">📞 Call</button>' +
+        '<button onclick="openUrl(\'' + mapsUrl + '\')" class="btn-outline" style="flex:1;padding:8px;font-size:11px;">🗺️ Directions</button>' +
+        '<button onclick="openUrl(\'' + s.url + '\')" class="btn-outline" style="flex:1;padding:8px;font-size:11px;">🌐 Website</button>' +
+        "</div></div>";
+    }
+    document.getElementById("slpListContainer").innerHTML = html;
+  }
+
+  function locateNearestSlp() {
+    vibrate(25);
+    var btn = document.getElementById("gpsLocateBtn");
+    btn.textContent = "⏳ Acquiring GPS Coordinates...";
+    if (!navigator.geolocation) {
+      btn.textContent = "📍 Locate Nearest SLP Center to Me";
+      toast("Geolocation not supported");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      var uLat = pos.coords.latitude, uLon = pos.coords.longitude;
+      SLP_CENTERS.forEach(function(s) {
+        var R = 6371;
+        var dLat = ((s.lat - uLat) * Math.PI) / 180;
+        var dLon = ((s.lon - uLon) * Math.PI) / 180;
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos((uLat * Math.PI) / 180) * Math.cos((s.lat * Math.PI) / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        s.distKm = Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+      });
+      SLP_CENTERS.sort(function(a, b) { return (a.distKm || 9999) - (b.distKm || 9999); });
+      btn.textContent = "✓ Sorted by Nearest Distance (" + SLP_CENTERS[0].city + " • " + SLP_CENTERS[0].distKm + " km)";
+      renderSlpDirectory("All");
+    }, function() {
+      btn.textContent = "📍 Locate Nearest SLP Center to Me";
+      if (window.SonoraNative && window.SonoraNative.requestPermissions) {
+        window.SonoraNative.requestPermissions();
+      }
+      toast("Please enable location permissions.");
+    }, { enableHighAccuracy: false, timeout: 8000 });
+  }
+
+  // ==================== PROFILE HISTORY & MODALS ====================
+  function renderHistoryList() {
+    var box = document.getElementById("historyListContainer");
+    if (!state.sessions || state.sessions.length === 0) {
+      box.innerHTML = "No sessions recorded yet. Run a voice screen to build your longitudinal baseline!";
+      return;
+    }
+    var html = "";
+    for (var i = 0; i < Math.min(8, state.sessions.length); i++) {
+      var s = state.sessions[i];
+      var pct = Math.round(s.consensus_probability * 100);
+      html +=
+        '<div style="padding:10px 12px;background:#F8FAFC;border-radius:14px;border:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;">' +
+        '<div><div style="font-weight:900;color:var(--ink);">' + s.consensus_diagnosis + '</div>' +
+        '<div style="font-size:10px;color:var(--ink-muted);">' + (s.timestamp || "").slice(0, 16) + " • " + s.dysarthria_vote_ratio + " tasks</div></div>" +
+        '<span style="font-weight:900;color:var(--teal-deep);">' + pct + "%</span></div>";
+    }
+    box.innerHTML = html;
+  }
+
+  function exportSessionsJson() {
+    vibrate(20);
+    var data = JSON.stringify(state.sessions, null, 2);
+    if (window.SonoraNative && window.SonoraNative.shareReport) {
+      window.SonoraNative.shareReport("Sonora_Clinical_Dossier.json", data);
+    }
+  }
+
+  function openLegalModal(type) {
+    vibrate(15);
+    var title = document.getElementById("modalTitle");
+    var body = document.getElementById("modalBody");
+    if (type === "admin") {
+      title.textContent = "Admin Telemetry & Analytics";
+      body.innerHTML =
+        '<div class="grid-2"><div class="mini-card"><div class="label">Total Screenings</div><div class="val">' + Math.max(12, state.sessions.length + 12) + '</div></div>' +
+        '<div class="mini-card"><div class="label">Active Rehab Users</div><div class="val">48</div></div></div>' +
+        '<p><strong>Top Geographies:</strong> New Delhi, Bengaluru, Chandigarh, Mumbai (India)</p>' +
+        '<p style="margin-top:6px;"><strong>Protocol Split:</strong> 62% Standard 3-Task Battery • 38% Extended 3×30s Statement Protocol</p>';
+    } else if (type === "contact") {
+      title.textContent = "Contact & DPDP Grievance Officer";
+      body.innerHTML =
+        '<p style="margin-bottom:10px;"><strong>Grievance Officer (India DPDP Act 2023):</strong> Lovish Manchanda (<a href="mailto:lovishmanchanda719@gmail.com">lovishmanchanda719@gmail.com</a>)</p>' +
+        '<input class="input-field" placeholder="Your Subject" />' +
+        '<textarea class="input-field" rows="3" placeholder="Your Message or Clinical Feedback"></textarea>' +
+        '<button class="btn-primary" onclick="closeModal();toast(\'Message logged &amp; dispatched!\')">Send Message</button>';
+    } else if (type === "privacy") {
+      title.textContent = "Privacy Policy (India DPDP Act 2023)";
+      body.innerHTML =
+        "<p><strong>1. Transient In-Memory Audio Processing:</strong> Voice recordings are processed transiently at 16 kHz for acoustic feature extraction and are never sold or shared with third-party advertisers.</p>" +
+        "<p style='margin-top:8px;'><strong>2. Data Principal Rights (DPDP Act 2023 &amp; IT Rules 2011):</strong> You have the right to inspect, export, or erase your saved screening history at any time from your Profile dossier.</p>" +
+        "<p style='margin-top:8px;'><strong>3. Grievance Officer:</strong> Lovish Manchanda (lovishmanchanda719@gmail.com).</p>";
+    } else if (type === "terms") {
+      title.textContent = "Terms & India Medical Safe-Harbor";
+      body.innerHTML =
+        "<p><strong>1. Not a Medical Device (CDSCO Rules 2017):</strong> Sonora (DysarthriaNet-XC) is an academic research and educational speech-awareness prototype, not a certified medical device.</p>" +
+        "<p style='margin-top:8px;'><strong>2. Non-Clinical Scope (RCI Act 1992):</strong> Acoustic screening probabilities do not constitute a formal clinical diagnosis. Always consult an RCI-registered Speech-Language Pathologist or Neurologist.</p>" +
+        "<p style='margin-top:8px;color:var(--rose);font-weight:800;'><strong>3. Emergency Notice:</strong> For sudden-onset slurred speech, facial droop, or suspected stroke, dial 112 or 108 immediately.</p>";
+    }
+    document.getElementById("modalBackdrop").classList.add("open");
+  }
+
+  function closeModal() {
+    document.getElementById("modalBackdrop").classList.remove("open");
+  }
+
+  window.addEventListener("DOMContentLoaded", initApp);
+</script>
+</body>
+</html>

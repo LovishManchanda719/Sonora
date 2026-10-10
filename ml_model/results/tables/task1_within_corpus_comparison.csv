@@ -1,0 +1,4 @@
+corpus,fixed_C,fixed_raw_acc,fixed_bacc,fixed_sens,fixed_spec,fixed_macro_f1,fixed_fold_std,source_validated_C,val_raw_acc,val_bacc,val_sens,val_spec,val_macro_f1,val_fold_std,delta_bacc_pp
+TORGO,0.01,71.29,65.95,49.51,82.39,66.49,14.71,1e-06,61.75,61.58,61.05,62.11,60.07,8.53,-4.37
+EasyCall,0.01,81.07,80.99,82.39,79.6,81.0,6.71,0.001,81.16,81.11,82.07,80.14,81.1,6.68,0.11
+Italian_Parkinsons,0.01,87.48,87.43,88.56,86.29,87.44,3.77,0.01,87.48,87.43,88.56,86.29,87.44,3.77,0.0

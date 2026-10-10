@@ -1,0 +1,5 @@
+corpus,clips,speakers,balanced_accuracy,roc_auc
+EasyCall,21386,55,77.53,0.8569
+Italian_Parkinsons,831,65,83.53,0.8968
+TORGO,9417,15,51.93,0.5559
+OVERALL_UNIFIED,31634,135,72.3,0.7996

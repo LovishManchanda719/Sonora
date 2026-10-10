@@ -1,0 +1,4 @@
+cohort,speakers,clips,min_date,max_date,years,digit_format
+15 Young Healthy Control,15,45,2017-01-10,2017-01-10,{2017: np.int64(45)},{12: np.int64(45)}
+22 Elderly Healthy Control,22,349,2017-03-17,2017-04-02,{2017: np.int64(349)},{12: np.int64(349)}
+28 People with Parkinson's disease,28,437,2016-05-26,2017-02-10,"{2017: np.int64(277), 2016: np.int64(160)}","{12: np.int64(277), 10: np.int64(160)}"

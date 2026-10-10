@@ -1,0 +1,460 @@
+[
+  {
+    "session_id": "sess_cd9ecdabf635",
+    "timestamp": "2026-10-10 15:42:31Z",
+    "total_utterances": 3,
+    "consensus_diagnosis": "Speech Within Normal Limits",
+    "is_dysarthric": false,
+    "consensus_probability": 0.1502,
+    "consensus_severity": "normal",
+    "confidence_rating": "High",
+    "dysarthria_vote_ratio": "0/3",
+    "clinical_recommendation": "Motor speech acoustics within standard physiological boundaries. Re-screen if patient reports speech fatigue or change.",
+    "utterances": [
+      {
+        "utterance_index": 1,
+        "task_name": "statement_passage_1",
+        "filename": "trial_1_extended_statement_reading_30s.wav",
+        "is_dysarthric": false,
+        "dysarthria_probability": 0.066,
+        "predicted_severity": "normal",
+        "audio_quality": {
+          "duration_seconds": 30,
+          "sample_rate": 16000,
+          "channels": 1,
+          "peak_amplitude": 0.3356,
+          "is_clipping": false,
+          "snr_db": 12.4,
+          "input_rms_db": -32.9
+        },
+        "clinical_note": "Phonatory and articulatory acoustic measures are within normal clinical thresholds."
+      },
+      {
+        "utterance_index": 2,
+        "task_name": "statement_passage_2",
+        "filename": "trial_2_motor_coordination_statement_30s.wav",
+        "is_dysarthric": false,
+        "dysarthria_probability": 0.1661,
+        "predicted_severity": "normal",
+        "audio_quality": {
+          "duration_seconds": 30,
+          "sample_rate": 16000,
+          "channels": 1,
+          "peak_amplitude": 0.1832,
+          "is_clipping": false,
+          "snr_db": 13.6,
+          "input_rms_db": -34.1
+        },
+        "clinical_note": "Phonatory and articulatory acoustic measures are within normal clinical thresholds."
+      },
+      {
+        "utterance_index": 3,
+        "task_name": "statement_passage_3",
+        "filename": "trial_3_prosodic_endurance_statement_30s.wav",
+        "is_dysarthric": false,
+        "dysarthria_probability": 0.2184,
+        "predicted_severity": "normal",
+        "audio_quality": {
+          "duration_seconds": 30,
+          "sample_rate": 16000,
+          "channels": 1,
+          "peak_amplitude": 0.3209,
+          "is_clipping": false,
+          "snr_db": 12.8,
+          "input_rms_db": -34.1
+        },
+        "clinical_note": "Phonatory and articulatory acoustic measures are within normal clinical thresholds."
+      }
+    ],
+    "agent_reports": {
+      "health_worker": {
+        "audience_mode": "health_worker",
+        "headline": "Health Worker & Clinical Triage Report: Within Normal Limits (15%)",
+        "overview_paragraph": "SCREENING SIGNAL NOTICE: Multi-utterance acoustic screening yielded a low consensus probability of 15% (0/3 tasks flagged; Confidence: High), consistent with preserved phonatory stability, diadochokinetic regularity, and connected-speech prosody.",
+        "task_takeaways": [
+          "Extended Clinical Statement Trial #1 (7% probability, NORMAL | 30.0s): Preserved multi-sentence syllable cadence (>=2.4 Hz), consonant spectral crispness, and respiratory-prosodic endurance.",
+          "Extended Clinical Statement Trial #2 (17% probability, NORMAL | 30.0s): Preserved multi-sentence syllable cadence (>=2.4 Hz), consonant spectral crispness, and respiratory-prosodic endurance.",
+          "Extended Clinical Statement Trial #3 (22% probability, NORMAL | 30.0s): Preserved multi-sentence syllable cadence (>=2.4 Hz), consonant spectral crispness, and respiratory-prosodic endurance."
+        ],
+        "reassurance_or_protocol_note": "Clinical Protocol Note: Evaluated across 3 speech subsystems (Sustained Vowel /a/ for respiratory-phonatory stability, DDK /pa-ta-ka/ for articulatory velocity, and Connected Reading for prosodic endurance). Corroborate with in-person perceptual exam.",
+        "next_steps_paragraph": "Triage Action: No immediate SLP referral required based on acoustic screening alone. Retain this session as the patient's longitudinal baseline; re-evaluate if clinical history or patient self-report indicates emerging bulbar or motor-speech fatigue.",
+        "generated_by": "DysarthriaNet-XC Clinical Report Agent (N-DAT / Freed Grounded)"
+      },
+      "caregiver": {
+        "audience_mode": "caregiver",
+        "headline": "Family & Caregiver Summary: Speech Within Normal Limits (15%)",
+        "overview_paragraph": "Good news: across the 3-step voice check, overall speech clarity and vocal steadiness fell within normal reference limits (risk score: 15%, 0/3 tasks flagged, high confidence). Remember that this tool is a supportive screening check, and dysarthria only relates to physical speech-muscle movement — never thinking or intelligence.",
+        "task_takeaways": [
+          "Extended Statement Reading - Trial #1 (7% risk signal | 30.0s): Maintained steady conversational rhythm, clear consonant articulation, and consistent vocal stamina across the full statement window.",
+          "Extended Statement Reading - Trial #2 (17% risk signal | 30.0s): Maintained steady conversational rhythm, clear consonant articulation, and consistent vocal stamina across the full statement window.",
+          "Extended Statement Reading - Trial #3 (22% risk signal | 30.0s): Maintained steady conversational rhythm, clear consonant articulation, and consistent vocal stamina across the full statement window."
+        ],
+        "reassurance_or_protocol_note": "Crucial Family Reassurance (Motor Control vs. Cognition): Dysarthria is a mechanical motor-speech condition caused by weakened or slowed speech muscles. The person knows exactly what they want to say; their mind, intellect, and comprehension remain intact.",
+        "next_steps_paragraph": "No urgent speech intervention is indicated by this recording. If you or your family notice voice fatigue later in the day, softer volume, or changes in medication timing, you can re-run a screening session anytime to compare before-and-after results side-by-side.",
+        "generated_by": "DysarthriaNet-XC Clinical Report Agent (N-DAT / Freed Grounded)"
+      }
+    },
+    "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+    "userEmail": "lovishmanchanda719@gmail.com",
+    "createdAt": {
+      "seconds": 1791646953
+    }
+  },
+  {
+    "session_id": "sess_aaf1ade1676b",
+    "timestamp": "2026-10-10 15:25:05Z",
+    "total_utterances": 3,
+    "consensus_diagnosis": "Dysarthria Detected",
+    "is_dysarthric": true,
+    "consensus_probability": 0.6071,
+    "consensus_severity": "severe",
+    "confidence_rating": "Moderate",
+    "dysarthria_vote_ratio": "2/3",
+    "clinical_recommendation": "Urgent: Immediate Comprehensive Speech-Language Pathology and Neurological Workup Recommended",
+    "utterances": [
+      {
+        "utterance_index": 1,
+        "task_name": "sustained_vowel",
+        "filename": "task_1_sustained_vowel_phonation.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.6198,
+        "predicted_severity": "severe"
+      },
+      {
+        "utterance_index": 2,
+        "task_name": "ddk_pataka",
+        "filename": "task_2_diadochokinesis_ddk.wav",
+        "is_dysarthric": false,
+        "dysarthria_probability": 0.2526,
+        "predicted_severity": "normal"
+      },
+      {
+        "utterance_index": 3,
+        "task_name": "sentence_passage",
+        "filename": "task_3_connected_sentence_reading.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.9488,
+        "predicted_severity": "severe"
+      }
+    ],
+    "agent_reports": {
+      "health_worker": {
+        "audience_mode": "health_worker",
+        "headline": "Health Worker & Clinical Triage Report: SEVERE Dysarthria Signal (61%)",
+        "overview_paragraph": "SCREENING SIGNAL NOTICE: Automated multi-prompt acoustic analysis (Wav2Vec 2.0 + CORAL cross-corpus calibration) flagged 2/3 speech tasks with a consensus dysarthria probability of 61% (Predicted Severity: SEVERE, Confidence: Moderate). This result represents an objective acoustic screening signal — NOT a standalone medical diagnosis — and warrants clinical correlation.",
+        "task_takeaways": [
+          "Sustained Vowel Phonation /a/ (62% probability, SEVERE): Elevated phonatory instability (jitter/shimmer or reduced respiratory-laryngeal efficiency per N-DAT MPT criteria).",
+          "Diadochokinetic (DDK) SMR /pa-ta-ka/ (25% probability, NORMAL): Intact sequential motor rate and articulatory precision.",
+          "Connected Speech Passage (95% probability, SEVERE): Acoustic markers indicate articulatory slurring or prosodic decay across multi-word connected speech."
+        ],
+        "reassurance_or_protocol_note": "Clinical Protocol Note: Evaluated across 3 speech subsystems (Sustained Vowel /a/ for respiratory-phonatory stability, DDK /pa-ta-ka/ for articulatory velocity, and Connected Reading for prosodic endurance). Corroborate with in-person perceptual exam.",
+        "next_steps_paragraph": "Triage Action: Priority referral to an RCI/ISHA-certified Speech-Language Pathologist (SLP) and neurologist for comprehensive motor speech examination (per Newcastle Dysarthria Assessment Tool [N-DAT] & Freed [2020] protocols), oral-motor cranial nerve screening, and swallowing/airway safety check.",
+        "generated_by": "DysarthriaNet-XC Clinical Report Agent (N-DAT / Freed Grounded)"
+      },
+      "caregiver": {
+        "audience_mode": "caregiver",
+        "headline": "Family & Caregiver Summary: Severe Motor Speech Signal (61%)",
+        "overview_paragraph": "This 3-step voice screening detected a severe motor-speech signal (overall score: 61%, with 2/3 speech tasks flagged and moderate confidence). Most importantly, please be reassured that dysarthria is strictly a physical muscle-coordination condition affecting the lips, tongue, vocal cords, or breath support — it does NOT affect intelligence, thinking, memory, or your loved one's ability to understand you.",
+        "task_takeaways": [
+          "Steady 'Ahhh' Voice Hold (62% risk signal): Showed some voice tremor or breathiness, meaning the vocal cords and breath support worked harder to keep a steady tone.",
+          "Quick 'Pa-Ta-Ka' Syllable Rhythm (25% risk signal): Showed crisp, well-coordinated lip and tongue movement speed.",
+          "Full Sentence Reading (95% risk signal): Showed mild slurring or vocal fatigue across longer connected phrases, where slowing down and pausing between words can help."
+        ],
+        "reassurance_or_protocol_note": "Crucial Family Reassurance (Motor Control vs. Cognition): Dysarthria is a mechanical motor-speech condition caused by weakened or slowed speech muscles. The person knows exactly what they want to say; their mind, intellect, and comprehension remain intact.",
+        "next_steps_paragraph": "We recommend scheduling an in-person evaluation with a certified Speech-Language Pathologist (SLP) and consulting your neurologist soon. At home, speak face-to-face in a quiet room with the TV or fan turned down, encourage slower phrase-by-phrase pacing, and never rush or finish their sentences unless they ask.",
+        "generated_by": "DysarthriaNet-XC Clinical Report Agent (N-DAT / Freed Grounded)"
+      }
+    },
+    "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+    "userEmail": "lovishmanchanda719@gmail.com",
+    "createdAt": {
+      "seconds": 1791645914
+    }
+  },
+  {
+    "session_id": "sess_93c9c21bfab3",
+    "timestamp": "2026-10-10 10:59:51Z",
+    "total_utterances": 3,
+    "consensus_diagnosis": "Speech Within Normal Limits",
+    "is_dysarthric": false,
+    "consensus_probability": 0.2815,
+    "consensus_severity": "normal",
+    "confidence_rating": "Moderate",
+    "dysarthria_vote_ratio": "1/3",
+    "clinical_recommendation": "Motor speech acoustics within standard physiological boundaries. Re-screen if patient reports speech fatigue or change.",
+    "utterances": [
+      {
+        "utterance_index": 1,
+        "task_name": "sustained_vowel",
+        "filename": "task_1_sustained_vowel_phonation.wav",
+        "is_dysarthric": false,
+        "dysarthria_probability": 0.0937,
+        "predicted_severity": "normal"
+      },
+      {
+        "utterance_index": 2,
+        "task_name": "ddk_pataka",
+        "filename": "task_2_diadochokinesis_ddk.wav",
+        "is_dysarthric": false,
+        "dysarthria_probability": 0.0244,
+        "predicted_severity": "normal"
+      },
+      {
+        "utterance_index": 3,
+        "task_name": "sentence_passage",
+        "filename": "task_3_connected_sentence_reading.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.7265,
+        "predicted_severity": "mild"
+      }
+    ],
+    "agent_reports": {
+      "health_worker": {
+        "audience_mode": "health_worker",
+        "headline": "Health Worker & Clinical Triage Report: Within Normal Limits (28%)",
+        "overview_paragraph": "SCREENING SIGNAL NOTICE: Multi-utterance acoustic screening yielded a low consensus probability of 28% (1/3 tasks flagged; Confidence: Moderate), consistent with preserved phonatory stability, diadochokinetic regularity, and connected-speech prosody.",
+        "task_takeaways": [
+          "Sustained Vowel Phonation /a/ (9% probability, NORMAL): Within expected phonatory stability and glottal closure boundaries.",
+          "Diadochokinetic (DDK) SMR /pa-ta-ka/ (2% probability, NORMAL): Intact sequential motor rate and articulatory precision.",
+          "Connected Speech Passage (73% probability, MILD): Acoustic markers indicate articulatory slurring or prosodic decay across multi-word connected speech."
+        ],
+        "reassurance_or_protocol_note": "Clinical Protocol Note: Evaluated across 3 speech subsystems (Sustained Vowel /a/ for respiratory-phonatory stability, DDK /pa-ta-ka/ for articulatory velocity, and Connected Reading for prosodic endurance). Corroborate with in-person perceptual exam.",
+        "next_steps_paragraph": "Triage Action: No immediate SLP referral required based on acoustic screening alone. Retain this session as the patient's longitudinal baseline; re-evaluate if clinical history or patient self-report indicates emerging bulbar or motor-speech fatigue.",
+        "generated_by": "DysarthriaNet-XC Clinical Report Agent (N-DAT / Freed Grounded)"
+      },
+      "caregiver": {
+        "audience_mode": "caregiver",
+        "headline": "Family & Caregiver Summary: Speech Within Normal Limits (28%)",
+        "overview_paragraph": "Good news: across the 3-step voice check, overall speech clarity and vocal steadiness fell within normal reference limits (risk score: 28%, 1/3 tasks flagged, moderate confidence). Remember that this tool is a supportive screening check, and dysarthria only relates to physical speech-muscle movement — never thinking or intelligence.",
+        "task_takeaways": [
+          "Steady 'Ahhh' Voice Hold (9% risk signal): Sounded steady and well-supported with healthy breath control.",
+          "Quick 'Pa-Ta-Ka' Syllable Rhythm (2% risk signal): Showed crisp, well-coordinated lip and tongue movement speed.",
+          "Full Sentence Reading (73% risk signal): Showed mild slurring or vocal fatigue across longer connected phrases, where slowing down and pausing between words can help."
+        ],
+        "reassurance_or_protocol_note": "Crucial Family Reassurance (Motor Control vs. Cognition): Dysarthria is a mechanical motor-speech condition caused by weakened or slowed speech muscles. The person knows exactly what they want to say; their mind, intellect, and comprehension remain intact.",
+        "next_steps_paragraph": "No urgent speech intervention is indicated by this recording. If you or your family notice voice fatigue later in the day, softer volume, or changes in medication timing, you can re-run a screening session anytime to compare before-and-after results side-by-side.",
+        "generated_by": "DysarthriaNet-XC Clinical Report Agent (N-DAT / Freed Grounded)"
+      }
+    },
+    "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+    "userEmail": "lovishmanchanda719@gmail.com",
+    "createdAt": {
+      "seconds": 1791629991
+    }
+  },
+  {
+    "session_id": "sess_babdc7702f64",
+    "timestamp": "2026-10-10 10:06:30Z",
+    "total_utterances": 3,
+    "consensus_diagnosis": "Speech Within Normal Limits",
+    "is_dysarthric": false,
+    "consensus_probability": 0.4539,
+    "consensus_severity": "normal",
+    "confidence_rating": "Moderate",
+    "dysarthria_vote_ratio": "1/3",
+    "clinical_recommendation": "Motor speech acoustics within standard physiological boundaries. Re-screen if patient reports speech fatigue or change.",
+    "utterances": [
+      {
+        "utterance_index": 1,
+        "task_name": "sustained_vowel",
+        "filename": "task_1_sustained_vowel_phonation.wav",
+        "is_dysarthric": false,
+        "dysarthria_probability": 0.2231,
+        "predicted_severity": "normal"
+      },
+      {
+        "utterance_index": 2,
+        "task_name": "ddk_pataka",
+        "filename": "task_2_diadochokinesis_ddk.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.7381,
+        "predicted_severity": "mild"
+      },
+      {
+        "utterance_index": 3,
+        "task_name": "sentence_passage",
+        "filename": "task_3_connected_sentence_reading.wav",
+        "is_dysarthric": false,
+        "dysarthria_probability": 0.4006,
+        "predicted_severity": "normal"
+      }
+    ],
+    "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+    "userEmail": "lovishmanchanda719@gmail.com",
+    "createdAt": {
+      "seconds": 1791626791
+    }
+  },
+  {
+    "session_id": "sess_6a71a09cb20d",
+    "timestamp": "2026-10-10 10:04:36Z",
+    "total_utterances": 3,
+    "consensus_diagnosis": "Dysarthria Detected",
+    "is_dysarthric": true,
+    "consensus_probability": 0.5576,
+    "consensus_severity": "mild",
+    "confidence_rating": "Moderate",
+    "dysarthria_vote_ratio": "2/3",
+    "clinical_recommendation": "Mild/Borderline: Longitudinal Speech Acoustic Monitoring and Preventive Clinical Screening",
+    "utterances": [
+      {
+        "utterance_index": 1,
+        "task_name": "sustained_vowel",
+        "filename": "task_1_sustained_vowel_phonation.wav",
+        "is_dysarthric": false,
+        "dysarthria_probability": 0.3196,
+        "predicted_severity": "normal"
+      },
+      {
+        "utterance_index": 2,
+        "task_name": "ddk_pataka",
+        "filename": "task_2_diadochokinesis_ddk.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.6101,
+        "predicted_severity": "mild"
+      },
+      {
+        "utterance_index": 3,
+        "task_name": "sentence_passage",
+        "filename": "task_3_connected_sentence_reading.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.743,
+        "predicted_severity": "severe"
+      }
+    ],
+    "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+    "userEmail": "lovishmanchanda719@gmail.com",
+    "createdAt": {
+      "seconds": 1791626676
+    }
+  },
+  {
+    "session_id": "sess_cd0411443730",
+    "timestamp": "2026-10-10 09:48:31Z",
+    "total_utterances": 3,
+    "consensus_diagnosis": "Dysarthria Detected",
+    "is_dysarthric": true,
+    "consensus_probability": 0.7452,
+    "consensus_severity": "moderate",
+    "confidence_rating": "Moderate",
+    "dysarthria_vote_ratio": "3/3",
+    "clinical_recommendation": "Prompt: Referral to Speech-Language Pathologist for Instrumental Acoustic and Aerodynamic Motor Assessment",
+    "utterances": [
+      {
+        "utterance_index": 1,
+        "task_name": "sustained_vowel",
+        "filename": "task_1_sustained_vowel_phonation.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.748,
+        "predicted_severity": "severe"
+      },
+      {
+        "utterance_index": 2,
+        "task_name": "ddk_pataka",
+        "filename": "task_2_diadochokinesis_ddk.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.952,
+        "predicted_severity": "moderate"
+      },
+      {
+        "utterance_index": 3,
+        "task_name": "sentence_passage",
+        "filename": "task_3_connected_sentence_reading.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.5357,
+        "predicted_severity": "moderate"
+      }
+    ],
+    "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+    "userEmail": "lovishmanchanda719@gmail.com",
+    "createdAt": {
+      "seconds": 1791625712
+    }
+  },
+  {
+    "session_id": "sess_e300bf87744e",
+    "timestamp": "2026-10-10 08:48:58Z",
+    "total_utterances": 3,
+    "consensus_diagnosis": "Dysarthria Detected",
+    "is_dysarthric": true,
+    "consensus_probability": 0.9463,
+    "consensus_severity": "moderate",
+    "confidence_rating": "High",
+    "dysarthria_vote_ratio": "3/3",
+    "clinical_recommendation": "Prompt: Referral to Speech-Language Pathologist for Instrumental Acoustic and Aerodynamic Motor Assessment",
+    "utterances": [
+      {
+        "utterance_index": 1,
+        "task_name": "sustained_vowel",
+        "filename": "task_1:_sustained_vowel_phonation.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.933,
+        "predicted_severity": "moderate"
+      },
+      {
+        "utterance_index": 2,
+        "task_name": "ddk_pataka",
+        "filename": "task_2:_diadochokinesis_(ddk).wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.9712,
+        "predicted_severity": "severe"
+      },
+      {
+        "utterance_index": 3,
+        "task_name": "sentence_passage",
+        "filename": "task_3:_connected_sentence_reading.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.9347,
+        "predicted_severity": "moderate"
+      }
+    ],
+    "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+    "userEmail": "lovishmanchanda719@gmail.com",
+    "createdAt": {
+      "seconds": 1791622138
+    }
+  },
+  {
+    "session_id": "sess_13a44e0b6510",
+    "timestamp": "2026-10-10 08:44:47Z",
+    "total_utterances": 3,
+    "consensus_diagnosis": "Dysarthria Detected",
+    "is_dysarthric": true,
+    "consensus_probability": 0.9698,
+    "consensus_severity": "mild",
+    "confidence_rating": "High",
+    "dysarthria_vote_ratio": "3/3",
+    "clinical_recommendation": "Mild/Borderline: Longitudinal Speech Acoustic Monitoring and Preventive Clinical Screening",
+    "utterances": [
+      {
+        "utterance_index": 1,
+        "task_name": "sustained_vowel",
+        "filename": "task_1:_sustained_vowel_phonation.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.9915,
+        "predicted_severity": "severe"
+      },
+      {
+        "utterance_index": 2,
+        "task_name": "ddk_pataka",
+        "filename": "task_2:_diadochokinesis_(ddk).wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.9912,
+        "predicted_severity": "mild"
+      },
+      {
+        "utterance_index": 3,
+        "task_name": "sentence_passage",
+        "filename": "task_3:_connected_sentence_reading.wav",
+        "is_dysarthric": true,
+        "dysarthria_probability": 0.9266,
+        "predicted_severity": "mild"
+      }
+    ],
+    "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+    "userEmail": "lovishmanchanda719@gmail.com",
+    "createdAt": {
+      "seconds": 1791621887
+    }
+  }
+]

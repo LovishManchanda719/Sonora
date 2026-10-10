@@ -1,0 +1,5 @@
+task,layer,mean_fold_bacc,std_fold_bacc_ddof1,mean_fold_acc,std_fold_acc_ddof1,pooled_bacc,pooled_acc,sensitivity,specificity,n_pos,n_neg
+PD vs Elderly Controls,1,95.91,3.02,95.99,3.21,95.93,95.93,95.88,95.99,437,349
+PD vs Elderly Controls,12,86.17,5.47,86.3,5.01,86.26,86.39,87.41,85.1,437,349
+PD vs Young Controls,1,99.43,0.86,98.98,1.51,99.43,98.96,98.86,100.0,437,45
+PD vs Young Controls,12,99.25,1.03,98.64,1.87,99.2,98.55,98.4,100.0,437,45

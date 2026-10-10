@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="dnx-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#D2F800" />
+    </linearGradient>
+    <filter id="dnx-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#14171A" flood-opacity="0.25" />
+    </filter>
+  </defs>
+  <!-- Outer dark clinical ring -->
+  <rect x="2" y="2" width="60" height="60" rx="30" fill="#14171A" />
+  <!-- Brand gradient badge -->
+  <rect x="6" y="6" width="52" height="52" rx="26" fill="url(#dnx-grad)" filter="url(#dnx-shadow)" />
+  <!-- Acoustic speech waveform / pulse icon -->
+  <path
+    d="M15 32h7l5-15 10 30 5-15h7"
+    fill="none"
+    stroke="#14171A"
+    stroke-width="5.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

@@ -1,0 +1,11 @@
+project-includes = [
+    "src/**/*.py",
+]
+
+search-path = [
+    ".",
+    "src",
+]
+
+python-interpreter-path = "C:/Users/Lovish/anaconda3/envs/dysarthria/python.exe"
+preset = "basic"
