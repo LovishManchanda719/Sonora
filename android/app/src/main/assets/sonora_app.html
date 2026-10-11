@@ -980,12 +980,12 @@ async function firebaseEmailAuth(email, password, isSignUp) {
   state.authBusy = true; state.authError = ""; render();
   const endpoint = isSignUp ? "accounts:signUp" : "accounts:signInWithPassword";
   try {
-    const res = await fetch("https://identitytoolkit.googleapis.com/v1/" + endpoint + "?key=" + FIREBASE_API_KEY, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.trim(), password, returnSecureToken: true })
-    });
-    const data = await res.json();
-    if (!res.ok) {
+    const r = await fetchJson("https://identitytoolkit.googleapis.com/v1/" + endpoint + "?key=" + FIREBASE_API_KEY, {
+      method: "POST",
+      json: { email: email.trim(), password, returnSecureToken: true }
+    }, 20000);
+    const data = r.json || {};
+    if (!r.ok) {
       const msg = (data && data.error && data.error.message) || "Sign-in failed";
       const friendly = {
         EMAIL_EXISTS: "An account with this email already exists. Sign in instead.",
@@ -998,7 +998,13 @@ async function firebaseEmailAuth(email, password, isSignUp) {
       state.authBusy = false; render(); return;
     }
     const base = email.split("@")[0].replace(/[._0-9]+/g, " ").trim() || "there";
-    state.user = { uid: data.localId, email: data.email, name: data.displayName || (base.charAt(0).toUpperCase() + base.slice(1)), provider: "password" };
+    state.user = {
+      uid: data.localId,
+      email: data.email,
+      name: data.displayName || (base.charAt(0).toUpperCase() + base.slice(1)),
+      provider: "password",
+      idToken: data.idToken || ""
+    };
     hydrateSeedProfile(state.user);
     state.sessions = loadUserSessionsHydrated(state.user);
     state.authBusy = false; saveState(); haptic(30); render();
@@ -1011,35 +1017,98 @@ async function firebaseEmailAuth(email, password, isSignUp) {
 
 function triggerGoogleSignIn() {
   state.authError = "";
+  state.googleLinkError = "";
   const n = native();
   if (n && n.signInWithGoogle) { state.authBusy = true; render(); n.signInWithGoogle(); }
-  else { state.authError = "Google sign-in is only available in the Android app."; render(); }
+  else {
+    const msg = "Google sign-in is only available in the Android app.";
+    state.authError = msg;
+    state.googleLinkError = msg;
+    render();
+  }
 }
 
+window.connectGoogleFromProfile = function() {
+  state.googleLinkStatus = "";
+  state.googleLinkError = "";
+  triggerGoogleSignIn();
+};
+
 window.onNativeGoogleSignIn = async function(idToken, email, name, photo) {
+  const prevUser = state.user && state.user.uid !== "guest" ? Object.assign({}, state.user) : null;
+  const prevSessions = Array.isArray(state.sessions) ? state.sessions.slice() : [];
+  const wasInProfile = Boolean(state.user);
   try {
-    const res = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=" + FIREBASE_API_KEY, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        postBody: "id_token=" + encodeURIComponent(idToken) + "&providerId=google.com",
-        requestUri: "http://localhost", returnSecureToken: true, returnIdpCredential: true
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error((data && data.error && data.error.message) || "Firebase sign-in failed");
-    state.user = {
-      uid: data.localId,
-      email: data.email || email,
-      name: data.displayName || name || (email || "").split("@")[0],
-      photo: data.photoUrl || photo || "",
-      provider: "google"
+    const idpPayload = {
+      postBody: "id_token=" + encodeURIComponent(idToken) + "&providerId=google.com",
+      requestUri: "http://localhost",
+      returnSecureToken: true,
+      returnIdpCredential: true
     };
+    let r = null;
+    if (prevUser && prevUser.idToken) {
+      r = await fetchJson("https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=" + FIREBASE_API_KEY, {
+        method: "POST",
+        json: Object.assign({ idToken: prevUser.idToken }, idpPayload)
+      }, 20000);
+    }
+    if (!r || !r.ok) {
+      r = await fetchJson("https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=" + FIREBASE_API_KEY, {
+        method: "POST",
+        json: idpPayload
+      }, 20000);
+    }
+    const data = (r && r.json) || {};
+    if (!r || !r.ok) throw new Error((data && data.error && data.error.message) || "Firebase sign-in failed");
+
+    const resolvedEmail = data.email || email || (prevUser && prevUser.email) || "";
+    const resolvedPhone = (prevUser && prevUser.phone) || "";
+    state.user = {
+      uid: data.localId || (prevUser && prevUser.uid) || ("google_" + resolvedEmail),
+      email: resolvedEmail,
+      googleEmail: data.email || email || resolvedEmail,
+      phone: resolvedPhone,
+      name: data.displayName || name || (prevUser && prevUser.name) || (resolvedEmail || "").split("@")[0],
+      photo: data.photoUrl || photo || (prevUser && prevUser.photo) || "",
+      provider: (prevUser && prevUser.provider) || "google",
+      googleLinked: true,
+      idToken: data.idToken || (prevUser && prevUser.idToken) || ""
+    };
+
+    const mobile10 = cleanMobile(resolvedPhone);
+    otpApi({
+      action: "sync_identity",
+      uid: state.user.uid,
+      mobileNumber: mobile10.length === 10 ? mobile10 : undefined,
+      firebaseAuthEmail: resolvedEmail,
+      linkedEmail: resolvedEmail,
+      googleLinked: true
+    }).catch(() => {});
+
     hydrateSeedProfile(state.user);
-    state.sessions = loadUserSessionsHydrated(state.user);
+    const loaded = loadUserSessionsHydrated(state.user);
+    if (prevSessions.length > 0) {
+      const seen = new Set(loaded.map(s => s.id));
+      for (const s of prevSessions) {
+        if (s && s.id && !seen.has(s.id)) {
+          loaded.push(s);
+          seen.add(s.id);
+        }
+      }
+      loaded.sort((a, b) => (parseIsoMs(b.dateIso) || 0) - (parseIsoMs(a.dateIso) || 0));
+    }
+    state.sessions = loaded;
+    if (wasInProfile) {
+      state.googleLinkStatus = "Google account connected (" + (state.user.googleEmail || state.user.email) + ")";
+      state.googleLinkError = "";
+      toast("Google account connected");
+    }
     saveState(); haptic(30);
     syncUserSessions();
   } catch (e) {
-    state.authError = /Failed to fetch|NetworkError/i.test(e.message) ? "No internet connection." : e.message.replace(/_/g, " ").toLowerCase();
+    const errText = /Failed to fetch|NetworkError|timeout/i.test(e.message) ? "No internet connection." : e.message.replace(/_/g, " ").toLowerCase();
+    state.authError = errText;
+    if (wasInProfile) state.googleLinkError = errText;
   }
   state.authBusy = false; render();
 };
@@ -1149,13 +1218,16 @@ window.verifyPhoneOtp = async function(e, codeOverride) {
 
     const d = (r && r.ok && r.data) ? r.data : {};
     const resolvedUid = d.localId || (v.descopeUser && v.descopeUser.userId) || ("phone_91" + state.phoneNumber);
+    const linkedMail = (v.descopeUser && v.descopeUser.email) || "";
     state.user = {
       uid: resolvedUid,
-      email: (v.descopeUser && v.descopeUser.email) || "",
+      email: linkedMail,
       phone: v.phoneNumber || ("+91" + state.phoneNumber),
       name: d.displayName || (v.descopeUser && v.descopeUser.name) || v.formattedDisplay || ("+91 " + state.phoneNumber),
       photo: "",
-      provider: "phone"
+      provider: "phone",
+      googleLinked: Boolean(linkedMail && !linkedMail.endsWith("@sonora.speech.ai")),
+      idToken: d.idToken || ""
     };
     // Keep the website's identity links in sync (best effort).
     otpApi({ action: "sync_identity", uid: resolvedUid, mobileNumber: state.phoneNumber, firebaseAuthEmail: activeEmail, plainFirebasePassword: activePass }).catch(() => {});
@@ -1173,6 +1245,7 @@ window.verifyPhoneOtp = async function(e, codeOverride) {
 window.onNativeGoogleSignInError = function(msg) {
   state.authBusy = false;
   state.authError = msg || "";
+  if (state.user && msg) state.googleLinkError = msg;
   render();
 };
 
@@ -3521,6 +3594,9 @@ function renderProfile() {
   const u = state.user;
   const displayName = state.profile.fullName || u.name || "User";
   const condShort = state.profile.condition || "General Motor Speech Screening";
+  const isGoogleConnected = Boolean(u && (u.provider === "google" || u.googleLinked));
+  const googleEmail = (u && (u.googleEmail || (u.email && !u.email.endsWith("@sonora.speech.ai") ? u.email : ""))) || "";
+  const busyAttr = state.authBusy ? "disabled" : "";
 
   return `
     <!-- Top Account Summary Card -->
@@ -3533,7 +3609,7 @@ function renderProfile() {
           </label>
           <div style="min-width:0;">
             <div class="editorial-title" style="font-size:19px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(displayName)}</div>
-            <div style="font-size:12px; font-weight:600; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(u.email || u.phone || (u.provider === "guest" ? "Guest session" : ""))}</div>
+            <div style="font-size:12px; font-weight:600; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(googleEmail || u.phone || u.email || (u.provider === "guest" ? "Guest session" : ""))}</div>
             <div style="font-size:11px; font-weight:800; color:var(--sky-deep); margin-top:2px;">
               ${state.profile.age ? `Age ${esc(state.profile.age)} · ${esc(state.profile.sex || "")} · ` : ""}${esc(condShort.split("/")[0].trim())}
             </div>
@@ -3541,6 +3617,23 @@ function renderProfile() {
         </div>
         <button type="button" class="icon-btn sm" onclick="syncNowToast()" aria-label="Sync with website">${icon("rotate", "sm")}</button>
       </div>
+
+      <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(15,76,117,0.12); display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+        ${isGoogleConnected ? `
+          <div class="row" style="gap:7px; font-size:11px; font-weight:800; color:var(--mint-deep); background:#FFFFFF; padding:6px 11px; border-radius:999px; border:1px solid rgba(10,92,54,0.16);">
+            ${GOOGLE_G}
+            <span>Google Connected${googleEmail ? " · " + esc(googleEmail) : ""}</span>
+          </div>
+        ` : `
+          <button type="button" class="btn ghost" style="width:auto; padding:8px 14px; font-size:12px; border-radius:999px; background:#FFFFFF;" onclick="connectGoogleFromProfile()" ${busyAttr}>
+            ${state.authBusy ? icon("loader", "spin") : GOOGLE_G}
+            <span>${state.authBusy ? "Connecting Google..." : "Connect Google Account"}</span>
+          </button>
+        `}
+        ${u.phone ? `<span style="font-size:11px; font-weight:700; color:#334155;">SMS OTP: ${esc(u.phone)}</span>` : ""}
+      </div>
+      ${state.googleLinkStatus ? `<div style="font-size:11px; font-weight:800; color:var(--mint-deep); margin-top:8px;">${esc(state.googleLinkStatus)}</div>` : ""}
+      ${state.googleLinkError ? `<div style="font-size:11px; font-weight:800; color:var(--rose); margin-top:8px;">${esc(state.googleLinkError)}</div>` : ""}
     </div>
 
     <!-- 3 Profile Sub-Tabs -->
@@ -3637,6 +3730,47 @@ function renderProfile() {
         </form>
       </div>
     ` : `
+      <!-- Connected Sign-In Methods -->
+      <div class="card">
+        <div style="font-size:11px; font-weight:800; color:var(--slate); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Connected Sign-In Methods</div>
+        <div class="row-between" style="gap:10px; padding:8px 0;">
+          <div class="row" style="gap:10px; min-width:0;">
+            <div style="width:36px; height:36px; border-radius:11px; background:var(--surface-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              ${GOOGLE_G}
+            </div>
+            <div style="min-width:0;">
+              <div style="font-size:13px; font-weight:800; color:var(--ink);">Google Account</div>
+              <div style="font-size:11px; color:var(--slate); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                ${isGoogleConnected ? esc(googleEmail || "Connected for 1-tap sign-in") : "Connect Google for 1-tap sign-in & cloud sync"}
+              </div>
+            </div>
+          </div>
+          ${isGoogleConnected ? `
+            <button type="button" class="chip on" style="padding:6px 11px; font-size:11px; flex-shrink:0;" onclick="connectGoogleFromProfile()" ${busyAttr}>
+              Connected
+            </button>
+          ` : `
+            <button type="button" class="btn" style="width:auto; padding:8px 13px; font-size:11px; border-radius:999px; flex-shrink:0;" onclick="connectGoogleFromProfile()" ${busyAttr}>
+              ${state.authBusy ? icon("loader", "spin") : ""}<span>Connect</span>
+            </button>
+          `}
+        </div>
+        ${u.phone ? `
+          <div class="row-between" style="gap:10px; padding:10px 0 4px; margin-top:6px; border-top:1px solid var(--line);">
+            <div class="row" style="gap:10px; min-width:0;">
+              <div style="width:36px; height:36px; border-radius:11px; background:var(--surface-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                ${icon("phone", "sm")}
+              </div>
+              <div style="min-width:0;">
+                <div style="font-size:13px; font-weight:800; color:var(--ink);">Mobile Number (SMS OTP)</div>
+                <div style="font-size:11px; color:var(--slate);">Verified: ${esc(u.phone)}</div>
+              </div>
+            </div>
+            <span class="chip on" style="padding:5px 10px; font-size:11px; flex-shrink:0;">Verified</span>
+          </div>
+        ` : ""}
+      </div>
+
       <!-- Account & Settings -->
       <div class="card">
         <label class="menu-row" style="cursor:pointer;">
