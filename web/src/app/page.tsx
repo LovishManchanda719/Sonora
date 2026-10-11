@@ -214,8 +214,14 @@ export default function HomePage() {
           </div>
 
           <div className="pt-2.5 sm:pt-4 mt-2.5 sm:mt-0 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 text-[10px] sm:text-xs text-slate-600">
-            <span>Clinical Cohort</span>
-            <span className="font-bold text-slate-900">135 Patients</span>
+            <span>135 Patients</span>
+            <Link
+              href="/resources?tab=datasets"
+              className="font-bold text-clinical-cyan hover:underline inline-flex items-center gap-1"
+            >
+              <span>Datasets &amp; Links</span>
+              <ArrowRight className="h-3 w-3" />
+            </Link>
           </div>
         </div>
 

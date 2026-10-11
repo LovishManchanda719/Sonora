@@ -57,17 +57,51 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Trained Corpora - Informational Overview */}
+          {/* Trained Corpora & Datasets - Clickable Links */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
               <Database className="h-3.5 w-3.5 text-clinical-cyan" />
-              Trained Corpora
+              Trained Corpora &amp; Links
             </h4>
             <ul className="text-xs space-y-2 text-slate-600">
-              <li>TORGO Database (English CP &amp; ALS)</li>
-              <li>EasyCall Corpus (Italian Multi-etiology)</li>
-              <li>IPVS Cohort (Italian Parkinson’s Disease)</li>
-              <li className="text-[11px] font-semibold text-slate-900">31,634 Clips · 135 Speakers</li>
+              <li>
+                <a
+                  href="https://www.cs.toronto.edu/~complingweb/data/TORGO/torgo.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-clinical-cyan hover:underline transition-colors"
+                >
+                  TORGO Database (English CP &amp; ALS) ↗
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.isca-archive.org/interspeech_2021/turrisi21_interspeech.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-clinical-cyan hover:underline transition-colors"
+                >
+                  EasyCall Corpus (Italian Multi-etiology) ↗
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://ieee-dataport.org/open-access/italian-parkinsons-voice-and-speech"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-clinical-cyan hover:underline transition-colors"
+                >
+                  IPVS Cohort (Italian Parkinson’s Disease) ↗
+                </a>
+              </li>
+              <li className="pt-0.5">
+                <Link
+                  href="/resources?tab=datasets"
+                  className="text-[11px] font-bold text-clinical-cyan hover:underline"
+                >
+                  All Datasets, Models &amp; Research Links →
+                </Link>
+              </li>
             </ul>
           </div>
 
