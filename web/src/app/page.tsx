@@ -102,57 +102,64 @@ export default function HomePage() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6">
 
         {/* Hero Card 1: Start Screening (Full width on mobile, 2-col on desktop) */}
-        <div className="col-span-2 md:col-span-2 lg:col-span-2 bg-[#14171A] text-white rounded-3xl p-5 sm:p-8 shadow-soft-lg relative overflow-hidden group flex flex-col justify-between">
+        <div className="col-span-2 md:col-span-2 lg:col-span-2 bg-[#14171A] text-white rounded-3xl p-6 sm:p-8 shadow-soft-lg relative overflow-hidden group flex flex-col justify-between">
           
           {/* Subtle Ambient Glow */}
           <div className="absolute top-0 right-0 w-80 h-80 bg-clinical-cyan/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
 
-          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-6 items-center">
-            {/* Left: Heading and CTA */}
-            <div className="sm:col-span-7 flex flex-col justify-between">
-              <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-white/10 text-vitality text-[10px] sm:text-xs font-bold mb-3 sm:mb-4 border border-white/10">
-                  <Zap className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                  <span>DUAL-MODE VOICE BIOMARKER BATTERY</span>
-                </div>
-                <h2 className="text-xl sm:text-3xl font-extrabold tracking-tight text-white mb-2 sm:mb-3 leading-snug">
-                  Screen Speech in 3 Rapid Tasks or 3 × 30s Statements
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4 sm:mb-6">
-                  Choose our rapid 3-subsystem check (Vowel, Pa-Ta-Ka, Sentence) or the high-precision 3 × 30s Extended Statement Protocol for deep cadence and fatigue analysis.
-                </p>
+          {/* Top Content + Illustration Row */}
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-12 gap-5 sm:gap-6 items-center">
+            {/* Left: Badge, Heading & Copy */}
+            <div className="sm:col-span-7 space-y-3">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-vitality text-[10px] sm:text-[11px] font-bold tracking-wide border border-white/10">
+                <Zap className="h-3.5 w-3.5 shrink-0" />
+                <span>DUAL-MODE VOICE BIOMARKER BATTERY</span>
               </div>
-
-              <div className="flex flex-col xs:flex-row flex-wrap items-stretch sm:items-center gap-2.5 pt-1">
-                <Link
-                  href="/screen"
-                  className="inline-flex items-center justify-center gap-2 bg-vitality hover:bg-vitality-hover text-[#14171A] font-extrabold px-5 py-3 rounded-full text-xs shadow-soft-sm hover:shadow-glow-vitality transition-all hover:scale-105"
-                >
-                  <Mic className="h-4 w-4 shrink-0" />
-                  <span>Begin Clinical Battery</span>
-                  <ArrowRight className="h-4 w-4 shrink-0" />
-                </Link>
-                <a
-                  href="https://github.com/LovishManchanda719/Sonora/raw/main/android/sonora-android.apk"
-                  download="Sonora-Android.apk"
-                  className="inline-flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/15 font-bold px-4 py-2.5 sm:py-3 rounded-full text-xs transition-all"
-                >
-                  <Smartphone className="h-3.5 w-3.5 text-vitality shrink-0" />
-                  <span>Get Android APK</span>
-                </a>
-              </div>
+              <h2 className="text-2xl sm:text-[28px] font-extrabold tracking-tight text-white leading-[1.2]">
+                Screen Speech in 3 Rapid Tasks or 3 × 30s Statements
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300/90 leading-relaxed">
+                Choose our rapid 3-subsystem check (Vowel, Pa-Ta-Ka, Sentence) or the high-precision 3 × 30s Extended Statement Protocol for deep cadence and fatigue analysis.
+              </p>
             </div>
 
             {/* Right: Hero Illustration with Ambient Glow */}
-            <div className="sm:col-span-5 flex items-center justify-center relative py-1 sm:py-2">
+            <div className="sm:col-span-5 flex items-center justify-center relative">
               <div className="absolute inset-0 bg-clinical-cyan/25 rounded-full blur-3xl pointer-events-none scale-90"></div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/hero-consultation.png"
                 alt="Clinical Consultation Illustration"
-                className="relative z-10 w-full max-h-36 sm:max-h-56 object-contain drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
+                className="relative z-10 w-full max-w-[220px] sm:max-w-[240px] max-h-40 sm:max-h-48 object-contain drop-shadow-2xl transition-transform duration-300 group-hover:scale-105"
               />
             </div>
+          </div>
+
+          {/* Bottom Full-Width CTA Row (aligned with adjacent cards' footer bars) */}
+          <div className="relative z-10 pt-5 mt-5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/screen"
+                className="inline-flex items-center justify-center gap-2 bg-vitality hover:bg-vitality-hover text-[#14171A] font-extrabold px-5 py-3 rounded-full text-xs shadow-soft-sm hover:shadow-glow-vitality transition-all hover:scale-[1.02]"
+              >
+                <Mic className="h-4 w-4 shrink-0" />
+                <span>Begin Clinical Battery</span>
+                <ArrowRight className="h-4 w-4 shrink-0" />
+              </Link>
+              <a
+                href="/downloads/sonora-android.apk"
+                download="Sonora-Android.apk"
+                className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white border border-white/15 font-bold px-4 py-3 rounded-full text-xs transition-all"
+              >
+                <Smartphone className="h-3.5 w-3.5 text-vitality shrink-0" />
+                <span>Get Android APK</span>
+              </a>
+            </div>
+
+            <span className="text-[11px] font-medium text-slate-400 hidden xl:inline-flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-vitality"></span>
+              16 kHz Wav2Vec 2.0 + Acoustic Fusion
+            </span>
           </div>
         </div>
 
