@@ -625,7 +625,7 @@ export function AudioRecorder({
               <div className="flex items-center justify-between text-[11px] font-bold">
                 <span className="text-slate-600">
                   {recordingSeconds >= targetDurationSec
-                    ? "✓ Target Duration Reached!"
+                    ? "Target duration reached"
                     : `Speaking Progress (${targetProgressPct}%)`}
                 </span>
                 <span className="font-mono text-slate-700">

@@ -30,8 +30,14 @@ import {
   KeyRound,
   CloudCheck,
   Lock,
+  Smartphone,
+  Phone,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
+import {
+  useAuth,
+  formatUserIdentifier,
+  isInternalPhoneEmail,
+} from "@/lib/auth-context";
 import {
   getUserScreeningHistory,
   StoredScreening,
@@ -43,6 +49,7 @@ import {
   fetchClinicalProfileFromFirestore,
   clearLocalScreenings,
 } from "@/lib/firestore";
+import { FacebookIcon } from "@/components/icons/BrandIcons";
 import { ProgressTrendChart } from "@/components/dashboard/ProgressTrendChart";
 import { generateClinicalPdfReport } from "@/lib/report-pdf";
 
@@ -110,9 +117,12 @@ export default function ProfilePage() {
     user,
     loading: authLoading,
     isAdmin,
+    linkedIdentity,
     profilePhotoUrl,
     updateUserPassword,
     linkGoogleAccount,
+    linkFacebookAccount,
+    linkPhoneWithOtp,
     updateUserPhoto,
     signOut,
   } = useAuth();
@@ -133,7 +143,8 @@ export default function ProfilePage() {
   const [isSavingPhoto, setIsSavingPhoto] = useState(false);
   const [photoStatusMsg, setPhotoStatusMsg] = useState<string | null>(null);
 
-  // Password & Google linking states
+  // Password, Email & Google linking states (Permutations A1, A2, B1, B2, C1, C2)
+  const [emailToLink, setEmailToLink] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
@@ -146,6 +157,34 @@ export default function ProfilePage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const [isLinkingFacebook, setIsLinkingFacebook] = useState(false);
+  const [facebookStatus, setFacebookStatus] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  // Phone OTP linking states (Permutations A3, B3, C3)
+  const [phoneInput, setPhoneInput] = useState("");
+  const [phoneOtpCode, setPhoneOtpCode] = useState("");
+  const [phoneLinkStep, setPhoneLinkStep] = useState<
+    "idle" | "enter_phone" | "verify_otp"
+  >("idle");
+  const [isSendingPhoneOtp, setIsSendingPhoneOtp] = useState(false);
+  const [isVerifyingPhoneOtp, setIsVerifyingPhoneOtp] = useState(false);
+  const [phoneResendCooldown, setPhoneResendCooldown] = useState(0);
+  const [phoneStatus, setPhoneStatus] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (phoneResendCooldown <= 0) return;
+    const id = setInterval(() => {
+      setPhoneResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [phoneResendCooldown]);
 
   // Load clinical dossier on mount / auth change — reset when signed out!
   useEffect(() => {
@@ -285,9 +324,25 @@ export default function ProfilePage() {
     }
   };
 
+  const needsRealEmailForPassword = Boolean(
+    user &&
+      isInternalPhoneEmail(user.email) &&
+      !linkedIdentity?.linkedEmail
+  );
+
   const handleSetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordStatus(null);
+    if (needsRealEmailForPassword) {
+      const cleanMail = emailToLink.trim();
+      if (!cleanMail || !cleanMail.includes("@") || isInternalPhoneEmail(cleanMail)) {
+        setPasswordStatus({
+          type: "error",
+          text: "Enter a valid email address to link with your password.",
+        });
+        return;
+      }
+    }
     if (newPassword.length < 6) {
       setPasswordStatus({
         type: "error",
@@ -304,12 +359,18 @@ export default function ProfilePage() {
     }
     setIsUpdatingPassword(true);
     try {
-      await updateUserPassword(newPassword);
+      await updateUserPassword(
+        newPassword,
+        needsRealEmailForPassword ? emailToLink.trim() : undefined
+      );
       setNewPassword("");
       setConfirmPassword("");
+      setEmailToLink("");
       setPasswordStatus({
         type: "success",
-        text: "Password updated successfully in Firebase Auth!",
+        text: needsRealEmailForPassword
+          ? "Email & Password linked! You can now sign in with either Phone OTP or Email + Password."
+          : "Password updated! Both Email and any linked Phone OTP / Google methods remain active.",
       });
     } catch (err: unknown) {
       const msg =
@@ -319,6 +380,22 @@ export default function ProfilePage() {
       setPasswordStatus({ type: "error", text: msg });
     } finally {
       setIsUpdatingPassword(false);
+    }
+  };
+
+  const handleConnectFacebook = async () => {
+    setFacebookStatus(null);
+    setIsLinkingFacebook(true);
+    try {
+      await linkFacebookAccount();
+      setFacebookStatus({ type: "success", text: "Facebook connected. You can now sign in with Facebook." });
+    } catch (e: unknown) {
+      setFacebookStatus({
+        type: "error",
+        text: e instanceof Error ? e.message : "Could not connect Facebook.",
+      });
+    } finally {
+      setIsLinkingFacebook(false);
     }
   };
 
@@ -345,6 +422,91 @@ export default function ProfilePage() {
       setGoogleStatus({ type: "error", text: msg });
     } finally {
       setIsLinkingGoogle(false);
+    }
+  };
+
+  const handleSendPhoneLinkOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!user) return;
+    setPhoneStatus(null);
+    const cleaned = phoneInput.replace(/\D/g, "");
+    if (cleaned.length !== 10) {
+      setPhoneStatus({
+        type: "error",
+        text: "Enter a valid 10-digit Indian mobile number.",
+      });
+      return;
+    }
+    setIsSendingPhoneOtp(true);
+    try {
+      const res = await fetch("/api/auth/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "send",
+          countryCode: "91",
+          mobileNumber: cleaned,
+          uid: user.uid,
+          skipCaptchaForLinkedUser: true,
+          channel: "web",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setPhoneStatus({
+          type: "error",
+          text: data.error || "Could not send verification SMS.",
+        });
+        return;
+      }
+      setPhoneOtpCode("");
+      setPhoneLinkStep("verify_otp");
+      setPhoneResendCooldown(30);
+      setPhoneStatus({
+        type: "success",
+        text: `6-digit SMS code sent to +91 ${cleaned}.`,
+      });
+    } catch {
+      setPhoneStatus({
+        type: "error",
+        text: "Network error sending verification code.",
+      });
+    } finally {
+      setIsSendingPhoneOtp(false);
+    }
+  };
+
+  const handleVerifyPhoneLinkOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPhoneStatus(null);
+    const cleanCode = phoneOtpCode.replace(/\D/g, "");
+    if (cleanCode.length !== 6) {
+      setPhoneStatus({
+        type: "error",
+        text: "Enter the 6-digit SMS verification code.",
+      });
+      return;
+    }
+    setIsVerifyingPhoneOtp(true);
+    try {
+      await linkPhoneWithOtp("91", phoneInput.replace(/\D/g, ""), cleanCode);
+      setPhoneLinkStep("idle");
+      setPhoneInput("");
+      setPhoneOtpCode("");
+      setPhoneStatus({
+        type: "success",
+        text: "Mobile number verified & linked! You can now sign in with Phone OTP anytime.",
+      });
+    } catch (err: unknown) {
+      setPhoneStatus({
+        type: "error",
+        text:
+          err instanceof Error
+            ? err.message
+            : "Incorrect OTP code. Please try again.",
+      });
+    } finally {
+      setIsVerifyingPhoneOtp(false);
     }
   };
 
@@ -444,6 +606,7 @@ export default function ProfilePage() {
   const displayTitle = user
     ? profile.patientName ||
       user.displayName ||
+      formatUserIdentifier(user.email, user.displayName, linkedIdentity) ||
       (user.email ? user.email.split("@")[0] : "Signed-In User")
     : "Guest Visitor (Signed Out)";
 
@@ -451,7 +614,25 @@ export default function ProfilePage() {
     pendingPhotoUrl || profilePhotoUrl || user?.photoURL || null;
 
   const isGoogleLinked = Boolean(
-    user?.providerData?.some((p) => p.providerId === "google.com")
+    user?.providerData?.some((p) => p.providerId === "google.com") ||
+      linkedIdentity?.googleLinked
+  );
+  const isFacebookLinked = Boolean(
+    user?.providerData?.some((p) => p.providerId === "facebook.com")
+  );
+  const linkedPhoneDisplay =
+    linkedIdentity?.formattedPhone ||
+    (user && isInternalPhoneEmail(user.email)
+      ? formatUserIdentifier(user.email, null, linkedIdentity)
+      : null);
+  const linkedRealEmail =
+    linkedIdentity?.linkedEmail ||
+    (user?.email && !isInternalPhoneEmail(user.email) ? user.email : null);
+  const isPasswordLinked = Boolean(
+    linkedIdentity?.hasCustomPassword ||
+      (user &&
+        !isInternalPhoneEmail(user.email) &&
+        user.providerData?.some((p) => p.providerId === "password"))
   );
 
   return (
@@ -470,7 +651,7 @@ export default function ProfilePage() {
                 />
               ) : (
                 <div className="h-16 w-16 rounded-2xl bg-[#14171A] text-vitality flex items-center justify-center font-black text-2xl shadow-sm">
-                  {user ? displayTitle[0]?.toUpperCase() || "U" : "G"}
+                  {user ? displayTitle.replace(/\+/g, "").trim()[0]?.toUpperCase() || "U" : "G"}
                 </div>
               )}
               {user && (
@@ -511,8 +692,17 @@ export default function ProfilePage() {
                   <>
                     <span className="flex items-center gap-1.5">
                       <Mail className="h-3.5 w-3.5 text-slate-400" />
-                      {user.email}
+                      {formatUserIdentifier(user.email, null, linkedIdentity)}
                     </span>
+                    {linkedPhoneDisplay && linkedRealEmail && (
+                      <>
+                        <span className="text-slate-300 hidden sm:inline">•</span>
+                        <span className="flex items-center gap-1 text-slate-600 font-semibold">
+                          <Phone className="h-3 w-3 text-emerald-600" />
+                          {linkedPhoneDisplay}
+                        </span>
+                      </>
+                    )}
                     <span className="text-slate-300 hidden sm:inline">•</span>
                     <span className="font-medium text-slate-700">
                       {profile.primaryEtiology}
@@ -1114,28 +1304,58 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* Card 2: Set / Update Password & Connect Google Account */}
+            {/* Card 2: Sign-In Methods & Cross-Provider Credentials (Phone OTP, Email+Password, Google) */}
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-soft-sm space-y-5">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <KeyRound className="h-5 w-5 text-indigo-500" />
                   <h2 className="text-base font-extrabold text-slate-900">
-                    Password &amp; Google Sign-In
+                    Sign-In Methods &amp; Credentials
                   </h2>
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Set or update your account password, or connect your Google account so you can sign in with either method anytime.
+                  Link or update your Mobile Number (SMS OTP), Email &amp; Password, and Google account so you can sign into this exact profile with any method.
                 </p>
               </div>
 
               {!user ? (
                 <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-2xl p-3.5">
-                  Please sign in first to manage your password and Google sign-in methods.
+                  Please sign in first to manage your Phone OTP, Password, Google, and Facebook sign-in methods.
                 </p>
               ) : (
                 <div className="space-y-5">
-                  {/* Set / Update Password Form */}
-                  <form onSubmit={handleSetPassword} className="space-y-3">
+                  {/* 1. Set / Update Email & Password Form (Permutations A1, B1, C1) */}
+                  <form onSubmit={handleSetPassword} className="space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-slate-800">
+                        {needsRealEmailForPassword
+                          ? "Link Email Address & Password"
+                          : isPasswordLinked
+                          ? "Update Account Password"
+                          : "Set Account Password"}
+                      </span>
+                      {linkedRealEmail && (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-500 font-medium truncate max-w-[220px]">
+                          {isPasswordLinked && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                          )}
+                          <span className="truncate">{linkedRealEmail}</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {needsRealEmailForPassword && (
+                      <div>
+                        <input
+                          type="email"
+                          value={emailToLink}
+                          onChange={(e) => setEmailToLink(e.target.value)}
+                          placeholder="Email address to link (e.g. you@domain.com)"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3.5 py-2 text-xs text-slate-900 focus:bg-white focus:border-slate-900 focus:outline-none"
+                        />
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <input
                         type="password"
@@ -1162,7 +1382,11 @@ export default function ProfilePage() {
                       ) : (
                         <KeyRound className="h-3.5 w-3.5 text-vitality" />
                       )}
-                      <span>Set / Update Password</span>
+                      <span>
+                        {needsRealEmailForPassword
+                          ? "Link Email & Password"
+                          : "Set / Update Password"}
+                      </span>
                     </button>
 
                     {passwordStatus && (
@@ -1178,70 +1402,285 @@ export default function ProfilePage() {
                     )}
                   </form>
 
-                  {/* Google Sign-In / Link Option */}
-                  <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <span className="text-xs font-bold text-slate-800 block">
-                        Google Account Sign-In
+                  {/* 2. Mobile Number (SMS OTP) Link / Change (Permutations A3, B3, C3) */}
+                  <div className="pt-4 border-t border-slate-100 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <span className="text-xs font-bold text-slate-800 block">
+                          Mobile Number Sign-In (SMS OTP)
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          {linkedPhoneDisplay
+                            ? `Verified: ${linkedPhoneDisplay} — SMS OTP login active`
+                            : "Link your +91 mobile number to enable passwordless SMS OTP login"}
+                        </span>
+                      </div>
+
+                      {phoneLinkStep === "idle" && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPhoneStatus(null);
+                            setPhoneLinkStep("enter_phone");
+                          }}
+                          className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2 rounded-full text-xs font-bold transition-all cursor-pointer"
+                        >
+                          <Smartphone className="h-3.5 w-3.5 text-slate-700" />
+                          <span>
+                            {linkedPhoneDisplay
+                              ? "Change Mobile Number"
+                              : "Link Mobile Number"}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+
+                    {phoneLinkStep === "enter_phone" && (
+                      <form
+                        onSubmit={handleSendPhoneLinkOtp}
+                        className="rounded-2xl bg-slate-50 border border-slate-200/80 p-3.5 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-slate-700">
+                            {linkedPhoneDisplay
+                              ? "Enter new 10-digit Indian mobile number"
+                              : "Enter 10-digit Indian mobile number"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPhoneLinkStep("idle");
+                              setPhoneStatus(null);
+                            }}
+                            className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <div className="flex items-center px-3 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-600 select-none">
+                            +91
+                          </div>
+                          <input
+                            type="tel"
+                            inputMode="numeric"
+                            maxLength={10}
+                            value={phoneInput}
+                            onChange={(e) =>
+                              setPhoneInput(
+                                e.target.value.replace(/\D/g, "").slice(0, 10)
+                              )
+                            }
+                            placeholder="XXXXX XXXXX"
+                            className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold tracking-wider text-slate-900 focus:border-slate-900 focus:outline-none"
+                          />
+                          <button
+                            type="submit"
+                            disabled={
+                              isSendingPhoneOtp ||
+                              phoneInput.replace(/\D/g, "").length !== 10
+                            }
+                            className="inline-flex items-center gap-1.5 bg-[#14171A] hover:bg-black text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            {isSendingPhoneOtp ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <ArrowRight className="h-3.5 w-3.5 text-vitality" />
+                            )}
+                            <span>Send OTP</span>
+                          </button>
+                        </div>
+                      </form>
+                    )}
+
+                    {phoneLinkStep === "verify_otp" && (
+                      <form
+                        onSubmit={handleVerifyPhoneLinkOtp}
+                        className="rounded-2xl bg-slate-50 border border-slate-200/80 p-3.5 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-slate-700">
+                            Enter 6-digit SMS code sent to +91 {phoneInput}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPhoneLinkStep("enter_phone");
+                              setPhoneOtpCode("");
+                            }}
+                            className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 cursor-pointer"
+                          >
+                            Change number
+                          </button>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={6}
+                            value={phoneOtpCode}
+                            onChange={(e) =>
+                              setPhoneOtpCode(
+                                e.target.value.replace(/\D/g, "").slice(0, 6)
+                              )
+                            }
+                            placeholder="••••••"
+                            className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-center text-sm font-extrabold tracking-[0.35em] text-slate-900 focus:border-slate-900 focus:outline-none"
+                          />
+                          <button
+                            type="submit"
+                            disabled={
+                              isVerifyingPhoneOtp ||
+                              phoneOtpCode.replace(/\D/g, "").length !== 6
+                            }
+                            className="inline-flex items-center gap-1.5 bg-[#14171A] hover:bg-black text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            {isVerifyingPhoneOtp ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Check className="h-3.5 w-3.5 text-vitality" />
+                            )}
+                            <span>Verify &amp; Link</span>
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] text-slate-500">
+                          <span>Didn&apos;t receive the SMS?</span>
+                          {phoneResendCooldown > 0 ? (
+                            <span className="font-semibold text-slate-400">
+                              Resend in {phoneResendCooldown}s
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleSendPhoneLinkOtp()}
+                              disabled={isSendingPhoneOtp}
+                              className="font-bold text-slate-800 hover:underline cursor-pointer"
+                            >
+                              Resend OTP
+                            </button>
+                          )}
+                        </div>
+                      </form>
+                    )}
+
+                    {phoneStatus && (
+                      <p
+                        className={`text-xs font-medium px-3 py-2 rounded-xl border ${
+                          phoneStatus.type === "success"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : "bg-red-50 text-red-700 border-red-200"
+                        }`}
+                      >
+                        {phoneStatus.text}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* 3. Social Sign-In (Google & Facebook in 1 Row) */}
+                  <div className="pt-4 border-t border-slate-100 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800">
+                        1-Click Social Sign-In
                       </span>
                       <span className="text-[11px] text-slate-500">
-                        {isGoogleLinked
-                          ? "Connected to Google Auth"
-                          : "Signed in with Email/Password — connect Google for 1-click login"}
+                        Connect to sign into this same account
                       </span>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={handleConnectGoogle}
-                      disabled={isLinkingGoogle}
-                      className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer"
-                    >
-                      {isLinkingGoogle ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <svg
-                          className="h-4 w-4 shrink-0"
-                          viewBox="0 0 24 24"
-                          aria-hidden="true"
-                        >
-                          <path
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-                            fill="#4285F4"
-                          />
-                          <path
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                            fill="#34A853"
-                          />
-                          <path
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                            fill="#FBBC05"
-                          />
-                          <path
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                            fill="#EA4335"
-                          />
-                        </svg>
-                      )}
-                      <span>
-                        {isGoogleLinked
-                          ? "Switch / Re-verify Google"
-                          : "Connect / Sign In with Google"}
-                      </span>
-                    </button>
-                  </div>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <button
+                        type="button"
+                        onClick={handleConnectGoogle}
+                        disabled={isLinkingGoogle}
+                        className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 px-3.5 py-2.5 rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-60"
+                      >
+                        {isLinkingGoogle ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                        ) : (
+                          <svg
+                            className="h-4 w-4 shrink-0"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                              fill="#4285F4"
+                            />
+                            <path
+                              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                              fill="#34A853"
+                            />
+                            <path
+                              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                              fill="#FBBC05"
+                            />
+                            <path
+                              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                              fill="#EA4335"
+                            />
+                          </svg>
+                        )}
+                        <span className="truncate">
+                          {isGoogleLinked ? "Google Connected" : "Connect Google"}
+                        </span>
+                        {isGoogleLinked && (
+                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                        )}
+                      </button>
 
-                  {googleStatus && (
-                    <p
-                      className={`text-xs font-medium px-3 py-2 rounded-xl border ${
-                        googleStatus.type === "success"
-                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                          : "bg-red-50 text-red-700 border-red-200"
-                      }`}
-                    >
-                      {googleStatus.text}
-                    </p>
-                  )}
+                      <button
+                        type="button"
+                        onClick={handleConnectFacebook}
+                        disabled={isLinkingFacebook || isFacebookLinked}
+                        className={`w-full inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-full text-xs font-bold shadow-sm transition-all ${
+                          isFacebookLinked
+                            ? "bg-emerald-50 text-emerald-800 border border-emerald-200 cursor-default"
+                            : "bg-[#1877F2] hover:bg-[#166FE5] text-white cursor-pointer disabled:opacity-60"
+                        }`}
+                      >
+                        {isLinkingFacebook ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                        ) : (
+                          <FacebookIcon className="h-3.5 w-3.5 shrink-0" />
+                        )}
+                        <span className="truncate">
+                          {isFacebookLinked
+                            ? "Facebook Connected"
+                            : "Connect Facebook"}
+                        </span>
+                        {isFacebookLinked && (
+                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                        )}
+                      </button>
+                    </div>
+
+                    {googleStatus && (
+                      <p
+                        className={`text-xs font-medium px-3 py-2 rounded-xl border ${
+                          googleStatus.type === "success"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : "bg-red-50 text-red-700 border-red-200"
+                        }`}
+                      >
+                        {googleStatus.text}
+                      </p>
+                    )}
+
+                    {facebookStatus && (
+                      <p
+                        className={`text-xs font-medium px-3 py-2 rounded-xl border ${
+                          facebookStatus.type === "success"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : "bg-red-50 text-red-700 border-red-200"
+                        }`}
+                      >
+                        {facebookStatus.text}
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

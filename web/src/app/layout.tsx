@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider as DescopeAuthProvider } from "@descope/nextjs-sdk";
 import { AuthProvider } from "@/lib/auth-context";
 import { AnalyticsTracker } from "@/lib/analytics";
 import { Navbar } from "@/components/layout/Navbar";
@@ -7,7 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://sonora-speech.vercel.app"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://sonora-liart.vercel.app"
   ),
   title: {
     default:
@@ -115,19 +116,26 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-[#F4F7FB] text-[#14171A]">
+      <body className="min-h-screen flex flex-col bg-[#F4F7FB] text-[#14171A] pb-24 md:pb-0">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <AuthProvider>
-          <AnalyticsTracker />
-          <Navbar />
-          <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-8 pt-8 sm:pt-10">
-            {children}
-          </main>
-          <Footer />
-        </AuthProvider>
+        <DescopeAuthProvider
+          projectId={
+            process.env.NEXT_PUBLIC_DESCOPE_PROJECT_ID ||
+            "P3KWVTtqHWyqAB1LbAh0ey4CH2nF"
+          }
+        >
+          <AuthProvider>
+            <AnalyticsTracker />
+            <Navbar />
+            <main className="flex-1 w-full max-w-7xl mx-auto px-3.5 sm:px-8 pt-4 sm:pt-8">
+              {children}
+            </main>
+            <Footer />
+          </AuthProvider>
+        </DescopeAuthProvider>
       </body>
     </html>
   );

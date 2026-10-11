@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -169,6 +169,11 @@ export default function ScreenPage() {
 
   // Phase 12B.8 Pre-Recording Quality Checklist & Room Noise Check state
   const [checklistOpen, setChecklistOpen] = useState(true);
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 640) {
+      setChecklistOpen(false);
+    }
+  }, []);
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({
     distance: true,
     quiet: true,
@@ -335,9 +340,9 @@ export default function ScreenPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-16">
+    <div className="max-w-4xl mx-auto space-y-5 sm:space-y-6 pb-16">
       {/* Top Wizard Steps Header */}
-      <div className="text-center pt-4">
+      <div className="text-center pt-1 sm:pt-4">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
           Clinical Motor Speech Assessment
         </h1>
@@ -346,8 +351,8 @@ export default function ScreenPage() {
         </p>
 
         {/* Dual-Mode Screening Protocol Selector */}
-        <div className="mt-5 bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/90 shadow-soft-sm text-left">
-          <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="mt-4 sm:mt-5 bg-white p-3.5 sm:p-5 rounded-3xl border border-slate-200/90 shadow-soft-sm text-left">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-3">
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
               Select Screening Protocol Mode
             </span>
@@ -358,20 +363,20 @@ export default function ScreenPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
             {/* Option 1: Standard 3-Task Battery */}
             <button
               type="button"
               onClick={() => handleSelectMode("standard")}
               disabled={isSubmitting}
-              className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-start gap-3.5 ${
+              className={`p-3.5 sm:p-4 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-start gap-3 sm:gap-3.5 ${
                 screeningMode === "standard"
                   ? "border-[#14171A] bg-slate-900 text-white shadow-soft-md"
                   : "border-slate-200/80 bg-slate-50/70 hover:bg-slate-100/70 text-slate-900"
               }`}
             >
               <div
-                className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
                   screeningMode === "standard"
                     ? "bg-vitality text-[#14171A]"
                     : "bg-slate-200 text-slate-700"
@@ -382,7 +387,7 @@ export default function ScreenPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs sm:text-sm font-extrabold">
-                    1. Standard 3-Task Clinical Battery
+                    1. Standard 3-Task Battery
                   </span>
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
@@ -411,14 +416,14 @@ export default function ScreenPage() {
               type="button"
               onClick={() => handleSelectMode("advanced")}
               disabled={isSubmitting}
-              className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-start gap-3.5 ${
+              className={`p-3.5 sm:p-4 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-start gap-3 sm:gap-3.5 ${
                 screeningMode === "advanced"
                   ? "border-[#14171A] bg-slate-900 text-white shadow-soft-md"
                   : "border-slate-200/80 bg-slate-50/70 hover:bg-slate-100/70 text-slate-900"
               }`}
             >
               <div
-                className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
+                className={`h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${
                   screeningMode === "advanced"
                     ? "bg-vitality text-[#14171A]"
                     : "bg-slate-200 text-slate-700"
@@ -429,7 +434,7 @@ export default function ScreenPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs sm:text-sm font-extrabold">
-                    2. Advanced Extended Statement Test
+                    2. Extended Statement Test
                   </span>
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
@@ -503,8 +508,8 @@ export default function ScreenPage() {
           )}
         </div>
 
-        {/* Step Pill Indicators */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 mt-6">
+        {/* Step Pill Indicators — always show Task/Trial label on mobile & desktop */}
+        <div className="flex items-center justify-center gap-2 sm:gap-4 mt-5">
           {activeTasksList.map((task, idx) => {
             const captured = recordedTasks[idx];
             const isCompleted = Boolean(captured);
@@ -531,7 +536,7 @@ export default function ScreenPage() {
                     ? "Complete preceding clinical tasks to unlock"
                     : undefined
                 }
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 rounded-full text-xs font-bold transition-all ${
                   isCurrent
                     ? "bg-[#14171A] text-white shadow-soft-sm cursor-default"
                     : isCompleted
@@ -556,9 +561,7 @@ export default function ScreenPage() {
                     {idx + 1}
                   </span>
                 )}
-                <span className="hidden sm:inline">
-                  {task.title.split(":")[0]}
-                </span>
+                <span>{task.title.split(":")[0]}</span>
               </button>
             );
           })}
@@ -569,7 +572,7 @@ export default function ScreenPage() {
       <div className="bg-white rounded-3xl border border-slate-100 shadow-soft-sm overflow-hidden">
         <div
           onClick={() => setChecklistOpen((prev) => !prev)}
-          className="px-6 py-4 flex items-center justify-between cursor-pointer hover:bg-slate-50/70 transition-colors"
+          className="px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between cursor-pointer hover:bg-slate-50/70 transition-colors"
         >
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-xl bg-[#14171A] text-vitality flex items-center justify-center shrink-0">
@@ -577,15 +580,17 @@ export default function ScreenPage() {
             </div>
             <div>
               <h2 className="text-xs sm:text-sm font-extrabold text-slate-900">
-                Pre-Recording Acoustic Quality Checklist (Phase 12B.8)
+                Pre-Recording Acoustic Quality Checklist
               </h2>
               <p className="text-[11px] text-slate-500">
-                Ensure clinical-grade recording conditions before capturing your 3 speech tasks
+                {checklistOpen
+                  ? "Ensure clinical-grade recording conditions before capturing your 3 speech tasks"
+                  : "Tap to view mic distance (6 in), room noise check & posture tips"}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {roomNoiseResult && (
               <span
                 className={`hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
@@ -739,17 +744,17 @@ export default function ScreenPage() {
       </div>
 
       {/* Navigation & Submit Bar */}
-      <div className="flex items-center justify-between pt-4">
+      <div className="flex items-center justify-between gap-2.5 pt-2 sm:pt-4">
         <button
           onClick={() => setCurrentStep((prev) => Math.max(0, prev - 1))}
           disabled={currentStep === 0 || isSubmitting}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-soft-sm transition-all cursor-pointer"
+          className="flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed shadow-soft-sm transition-all cursor-pointer shrink-0"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          <span>Previous Task</span>
+          <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+          <span>Previous</span>
         </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {currentStep < activeTasksList.length - 1 ? (
             <button
               onClick={() =>
@@ -758,26 +763,26 @@ export default function ScreenPage() {
                 )
               }
               disabled={!isCurrentTaskReady || isSubmitting}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-bold bg-[#14171A] hover:bg-black text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-soft-sm transition-all cursor-pointer"
+              className="flex items-center gap-1.5 sm:gap-2 px-5 sm:px-6 py-2.5 rounded-full text-xs font-bold bg-[#14171A] hover:bg-black text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-soft-sm transition-all cursor-pointer"
             >
               <span>Next Task</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-3.5 w-3.5 shrink-0" />
             </button>
           ) : (
             <button
               onClick={handleSubmitSession}
               disabled={!areAllTasksReady || isSubmitting}
-              className="flex items-center gap-2 px-8 py-3 rounded-full text-xs font-extrabold bg-vitality hover:bg-vitality-hover text-[#14171A] shadow-soft-md hover:shadow-glow-vitality disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:scale-105 cursor-pointer"
+              className="flex items-center gap-2 px-5 sm:px-8 py-3 rounded-full text-xs font-extrabold bg-vitality hover:bg-vitality-hover text-[#14171A] shadow-soft-md hover:shadow-glow-vitality disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:scale-105 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Processing Speech Foundation Model...</span>
+                  <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                  <span>Analyzing Speech Battery...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span>Analyze Complete Speech Battery</span>
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                  <span>Analyze Speech Battery</span>
                 </>
               )}
             </button>

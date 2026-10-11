@@ -18,7 +18,7 @@ import {
   Phone,
   Navigation,
   Loader2,
-  Sparkles,
+  AudioLines,
   Map,
 } from "lucide-react";
 
@@ -668,7 +668,7 @@ export default function ResourcesPage() {
                 </p>
               </div>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold shrink-0">
-                <Sparkles className="h-3.5 w-3.5" />
+                <AudioLines className="h-3.5 w-3.5" />
                 <span>Illustrated Family Guide</span>
               </span>
             </div>

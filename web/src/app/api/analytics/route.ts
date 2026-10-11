@@ -3,6 +3,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { ADMIN_EMAIL, StoredScreening, ContactInquiryRecord } from "@/lib/firestore";
+import { readOtpQuotaStore } from "@/lib/otp-quota";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const ANALYTICS_FILE = path.join(DATA_DIR, "analytics.json");
@@ -243,12 +244,26 @@ export async function GET(request: NextRequest) {
         new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime()
     );
 
+    const otpStore = readOtpQuotaStore();
+
     return NextResponse.json({
       success: true,
       users: usersList,
       events: store.events.slice(0, 300),
       screenings,
       contacts,
+      otpQuota: {
+        monthKey: otpStore.monthKey,
+        monthlyLimit: otpStore.monthlyLimit,
+        usedCount: otpStore.usedCount,
+        remainingCount: Math.max(
+          0,
+          otpStore.monthlyLimit - otpStore.usedCount
+        ),
+        verifiedCount: otpStore.verifiedCount,
+        blockedAttacksCount: otpStore.blockedAttacksCount,
+        logs: otpStore.logs.slice(0, 50),
+      },
     });
   } catch (err: unknown) {
     return NextResponse.json(

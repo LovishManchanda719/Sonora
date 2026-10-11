@@ -118,3 +118,11 @@ android/local.properties
 !android/sonora-android.apk
 !web/public/downloads/sonora-android.apk
 *.aab
+
+# Local-only helper folders and secrets (never committed)
+.secrets/
+.claude_tmp/
+_claude_runner/
+publish_log.txt
+web/data/otp_usage.json
+web/data/identity_links.json

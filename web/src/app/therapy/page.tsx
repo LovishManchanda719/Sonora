@@ -8,7 +8,7 @@ import {
   Sliders,
   Flame,
   Volume2,
-  Sparkles,
+  AudioLines,
   ArrowRight,
 } from "lucide-react";
 import { PacingBoard } from "@/components/therapy/PacingBoard";
@@ -85,7 +85,7 @@ export default function TherapyPage() {
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
           }`}
         >
-          <Sparkles className={`h-4 w-4 ${activeTab === "contrast" ? "text-vitality" : "text-slate-400"}`} />
+          <AudioLines className={`h-4 w-4 ${activeTab === "contrast" ? "text-vitality" : "text-slate-400"}`} />
           <span>3. Minimal Contrast Drills</span>
           <span className="hidden sm:inline text-[10px] opacity-70 font-mono">(Consonants)</span>
         </button>
@@ -129,7 +129,7 @@ export default function TherapyPage() {
 
         <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-soft-sm space-y-3">
           <div className="h-9 w-9 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
-            <Sparkles className="h-4 w-4" />
+            <AudioLines className="h-4 w-4" />
           </div>
           <h3 className="font-bold text-sm text-slate-900">
             Articulatory Kinematics

@@ -6,7 +6,7 @@ import {
   Mic,
   Square,
   Play,
-  Sparkles,
+  AudioLines,
   ChevronLeft,
   ChevronRight,
   Info,
@@ -625,7 +625,7 @@ export function MinimalContrastCards() {
         {/* Phonetic Target & Clinical Cue */}
         <div className="bg-black/40 rounded-2xl p-4 sm:p-5 border border-white/10 space-y-2">
           <div className="flex items-center gap-2 text-xs font-bold text-vitality">
-            <Sparkles className="h-3.5 w-3.5" />
+            <AudioLines className="h-3.5 w-3.5" />
             <span>Phonetic Focus: {activeDrill.phoneticFocus}</span>
           </div>
           <p className="text-xs text-slate-300 leading-relaxed">

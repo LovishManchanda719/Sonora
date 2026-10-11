@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { ADMIN_EMAIL, ContactInquiryRecord } from "@/lib/firestore";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const CONTACTS_FILE = path.join(DATA_DIR, "contacts.json");
+const TMP_CONTACTS_FILE = path.join(os.tmpdir(), "sonora_contacts.json");
 
 // Simple in-memory rate limiter per IP (max 15 requests per minute)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -31,31 +33,45 @@ function sanitizeText(input: unknown, maxLen = 1500): string {
     .slice(0, maxLen);
 }
 
-function getStoredContacts(): ContactInquiryRecord[] {
+function readContactList(filePath: string): ContactInquiryRecord[] {
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
     }
-    if (!fs.existsSync(CONTACTS_FILE)) {
-      fs.writeFileSync(CONTACTS_FILE, "[]", "utf-8");
-      return [];
+  } catch {}
+  return [];
+}
+
+function getStoredContacts(): ContactInquiryRecord[] {
+  const bundled = readContactList(CONTACTS_FILE);
+  const tmp = readContactList(TMP_CONTACTS_FILE);
+  if (!tmp.length) return bundled;
+  const seen = new Set<string>();
+  const merged: ContactInquiryRecord[] = [];
+  for (const c of [...tmp, ...bundled]) {
+    if (c && c.id && !seen.has(c.id)) {
+      seen.add(c.id);
+      merged.push(c);
     }
-    const raw = fs.readFileSync(CONTACTS_FILE, "utf-8");
-    return JSON.parse(raw) || [];
-  } catch (err) {
-    console.error("Error reading contacts store:", err);
-    return [];
   }
+  return merged;
 }
 
 function saveStoredContacts(contacts: ContactInquiryRecord[]) {
+  const payload = JSON.stringify(contacts, null, 2);
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
-    fs.writeFileSync(CONTACTS_FILE, JSON.stringify(contacts, null, 2), "utf-8");
-  } catch (err) {
-    console.error("Error writing contacts store:", err);
+    fs.writeFileSync(CONTACTS_FILE, payload, "utf-8");
+  } catch {
+    try {
+      fs.writeFileSync(TMP_CONTACTS_FILE, payload, "utf-8");
+    } catch (err) {
+      console.error("Error writing contacts store:", err);
+    }
   }
 }
 

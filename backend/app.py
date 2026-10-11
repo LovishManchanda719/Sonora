@@ -69,7 +69,11 @@ def gradio_analyze_speech(audio_file_path):
         return {"error": f"Audio processing failed: {str(e)}"}
 
     service = get_model_service()
-    pred = service.predict_from_waveform(waveform)
+    pred = service.predict_from_waveform(
+        waveform,
+        task_name=filename,
+        input_rms_db=quality.get("input_rms_db"),
+    )
 
     return {
         "Diagnosis": "Dysarthria Detected" if pred["is_dysarthric"] else "Speech Within Normal Limits",
@@ -121,36 +125,73 @@ with gr.Blocks(title="DysarthriaNet-XC API & Playground", css=custom_css, theme=
             api_name="predict",
         )
 
-# Configure CORS and mount REST endpoints directly onto demo.app
+# Configure CORS and mount REST endpoints onto Gradio's FastAPI app
+# In Gradio 5/6, demo.launch() calls App.create_app() again and replaces demo.app,
+# so we hook App.create_app to ensure custom FastAPI routes are mounted on the active server_app.
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api.router import api_router
 
-demo.app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-_existing_route_count = len(demo.app.router.routes)
+def _mount_custom_rest_api(fastapi_app):
+    if getattr(fastapi_app, "_dysarthrianet_mounted", False):
+        return fastapi_app
 
-demo.app.include_router(api_router, prefix="/api/v1")
+    fastapi_app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-@demo.app.get("/api/v1/health", tags=["System Health"])
-@demo.app.get("/health", tags=["System Health"])
-async def root_health():
-    return {
-        "status": "HEALTHY",
-        "version": "1.0.0",
-        "device": "cuda",
-        "model_loaded": True,
-        "project": "DysarthriaNet-XC Clinical Diagnostic API"
-    }
+    existing_count = len(fastapi_app.router.routes)
+    fastapi_app.include_router(api_router, prefix="/api/v1")
 
-# Place custom REST API routes before Gradio's SPA catch-all route
-_new_routes = demo.app.router.routes[_existing_route_count:]
-demo.app.router.routes = _new_routes + demo.app.router.routes[:_existing_route_count]
+    @fastapi_app.get("/api/v1/health", tags=["System Health"])
+    @fastapi_app.get("/health", tags=["System Health"])
+    async def root_health():
+        return {
+            "status": "HEALTHY",
+            "version": "1.0.0",
+            "device": "cuda",
+            "model_loaded": True,
+            "project": "DysarthriaNet-XC Clinical Diagnostic API",
+        }
+
+    # Place custom REST API routes before Gradio's SPA catch-all route
+    new_routes = fastapi_app.router.routes[existing_count:]
+    fastapi_app.router.routes = new_routes + fastapi_app.router.routes[:existing_count]
+    fastapi_app._dysarthrianet_mounted = True
+    return fastapi_app
+
+
+# Mounting the REST routes is best-effort: if a Gradio version changes these internals,
+# the Space must still start and keep serving the Gradio /predict API.
+try:
+    _orig_create_app = gr.routes.App.create_app
+
+    def _patched_create_app(*args, **kwargs):
+        created_app = _orig_create_app(*args, **kwargs)
+        try:
+            return _mount_custom_rest_api(created_app)
+        except Exception as mount_err:  # pragma: no cover
+            print(f"[DysarthriaNet] REST mount skipped: {mount_err}")
+            return created_app
+
+    gr.routes.App.create_app = staticmethod(_patched_create_app)
+except Exception as patch_err:  # pragma: no cover
+    print(f"[DysarthriaNet] Could not patch Gradio App.create_app: {patch_err}")
+
+try:
+    if getattr(demo, "app", None) is not None:
+        _mount_custom_rest_api(demo.app)
+except Exception as early_err:  # pragma: no cover
+    print(f"[DysarthriaNet] Early REST mount skipped: {early_err}")
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, ssr_mode=False)
+    try:
+        demo.launch(server_name="0.0.0.0", server_port=7860, ssr_mode=False, strict_cors=False)
+    except TypeError:
+        # Older Gradio without strict_cors / ssr_mode keyword arguments
+        demo.launch(server_name="0.0.0.0", server_port=7860)
+

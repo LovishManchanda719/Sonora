@@ -8,7 +8,7 @@ import {
   Volume2,
   VolumeX,
   Gauge,
-  Sparkles,
+  AudioLines,
   Info,
   TrendingUp,
   HelpCircle,
@@ -408,7 +408,7 @@ export function PacingBoard() {
       <div className="bg-[#14171A] rounded-3xl p-6 sm:p-8 text-white space-y-6 shadow-soft-lg">
         <div className="flex items-center justify-between text-xs text-slate-400">
           <span className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-vitality" />
+            <AudioLines className="h-3.5 w-3.5 text-vitality" />
             {mode === "manual"
               ? "Tap each word slot one by one right as you speak it aloud to separate syllables"
               : `Speak each word aloud when its slot lights up (${bpm} BPM = ${wordsPerSecond} words/sec)`}

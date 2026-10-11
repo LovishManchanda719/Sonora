@@ -15,6 +15,7 @@ body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   letter-spacing: -0.015em;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 /* Custom Scrollbar */
@@ -36,5 +37,12 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

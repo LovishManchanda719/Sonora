@@ -48,6 +48,23 @@ const INQUIRY_LABELS: Record<string, string> = {
   other: "General Developer Inquiry",
 };
 
+interface OtpQuotaSummary {
+  monthKey: string;
+  monthlyLimit: number;
+  usedCount: number;
+  remainingCount: number;
+  verifiedCount: number;
+  blockedAttacksCount: number;
+  logs: Array<{
+    id: string;
+    timestamp: string;
+    maskedPhone: string;
+    channel: string;
+    status: "sent" | "verified" | "blocked";
+    reason?: string;
+  }>;
+}
+
 export default function AdminDashboardPage() {
   const { user, loading: authLoading, isAdmin } = useAuth();
 
@@ -57,6 +74,15 @@ export default function AdminDashboardPage() {
   const [events, setEvents] = useState<AnalyticsEventRecord[]>([]);
   const [screenings, setScreenings] = useState<StoredScreening[]>([]);
   const [contacts, setContacts] = useState<ContactInquiryRecord[]>([]);
+  const [otpQuota, setOtpQuota] = useState<OtpQuotaSummary>({
+    monthKey: new Date().toISOString().slice(0, 7),
+    monthlyLimit: 100,
+    usedCount: 0,
+    remainingCount: 100,
+    verifiedCount: 0,
+    blockedAttacksCount: 0,
+    logs: [],
+  });
 
   const [userSearch, setUserSearch] = useState("");
   const [screeningSearch, setScreeningSearch] = useState("");
@@ -78,6 +104,9 @@ export default function AdminDashboardPage() {
         setEvents(data.events || []);
         setScreenings(data.screenings || []);
         setContacts(data.contacts || []);
+        if (data.otpQuota) {
+          setOtpQuota(data.otpQuota);
+        }
       }
     } catch (err) {
       console.warn("Failed to load admin analytics:", err);
@@ -373,6 +402,63 @@ export default function AdminDashboardPage() {
             <div className="text-[10px] text-slate-400 mt-1">
               User inquiries received
             </div>
+          </div>
+        </div>
+
+        {/* DESCOPE MONTHLY SMS OTP QUOTA & ANTI-DDOS PANEL */}
+        <div className="rounded-2xl bg-white/5 border border-white/15 p-4 sm:p-5 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Smartphone className="h-4 w-4 text-vitality" />
+              <span className="text-xs font-extrabold uppercase tracking-wider text-white">
+                Monthly SMS OTP Quota ({otpQuota.monthKey})
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-vitality/20 border border-vitality/30 text-vitality text-[10px] font-mono font-bold">
+                Descope Free Plan (100/mo)
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+              <span className="text-slate-300">
+                Used:{" "}
+                <strong className="text-white font-black">
+                  {otpQuota.usedCount}
+                </strong>{" "}
+                / {otpQuota.monthlyLimit}
+              </span>
+              <span className="text-vitality">
+                Remaining:{" "}
+                <strong className="font-black">
+                  {otpQuota.remainingCount}
+                </strong>{" "}
+                OTPs left
+              </span>
+              <span className="text-sky-400">
+                Verified: <strong>{otpQuota.verifiedCount}</strong>
+              </span>
+              <span className="text-rose-400">
+                Blocked Attacks: <strong>{otpQuota.blockedAttacksCount}</strong>
+              </span>
+            </div>
+          </div>
+
+          <div className="w-full h-2.5 rounded-full bg-white/10 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${
+                otpQuota.remainingCount <= 15
+                  ? "bg-rose-500"
+                  : otpQuota.remainingCount <= 40
+                  ? "bg-amber-400"
+                  : "bg-vitality"
+              }`}
+              style={{
+                width: `${Math.min(
+                  100,
+                  Math.round(
+                    (otpQuota.usedCount / (otpQuota.monthlyLimit || 100)) * 100
+                  )
+                )}%`,
+              }}
+            />
           </div>
         </div>
 
