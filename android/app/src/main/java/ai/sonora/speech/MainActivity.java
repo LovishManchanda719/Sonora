@@ -77,9 +77,6 @@ public class MainActivity extends Activity {
     private static final int LOCATION_REQ_CODE = 1004;
 
     private WebView webView;
-    // sonora://auth?... deep link (Facebook sign-in return) waiting for the page to be ready
-    private String pendingAuthRedirect = null;
-    private boolean pageReady = false;
     private TextToSpeech tts;
     private boolean ttsReady = false;
     private boolean pendingLocation = false;
@@ -207,13 +204,6 @@ public class MainActivity extends Activity {
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                pageReady = true;
-                deliverPendingAuthRedirect();
-            }
-
-            @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
                 String scheme = uri.getScheme() != null ? uri.getScheme().toLowerCase() : "";
@@ -281,7 +271,6 @@ public class MainActivity extends Activity {
         rootContainer.requestApplyInsets();
         webView.clearCache(true);
         webView.loadUrl("file:///android_asset/sonora_app.html");
-        captureAuthRedirect(getIntent());
     }
 
     private void requestRuntimePermissionsIfNeeded() {
@@ -479,34 +468,6 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
         onBackPressedInternal();
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        captureAuthRedirect(intent);
-    }
-
-    private void captureAuthRedirect(Intent intent) {
-        if (intent == null || intent.getData() == null) return;
-        Uri data = intent.getData();
-        if (!"sonora".equalsIgnoreCase(data.getScheme())) return;
-        pendingAuthRedirect = data.toString();
-        deliverPendingAuthRedirect();
-    }
-
-    private void deliverPendingAuthRedirect() {
-        if (!pageReady || webView == null || pendingAuthRedirect == null) return;
-        final String js = "window.onNativeAuthRedirect && window.onNativeAuthRedirect("
-                + JSONObject.quote(pendingAuthRedirect) + ");";
-        pendingAuthRedirect = null;
-        webView.post(new Runnable() {
-            @Override
-            public void run() {
-                webView.evaluateJavascript(js, null);
-            }
-        });
     }
 
     private void onBackPressedInternal() {

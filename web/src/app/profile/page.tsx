@@ -37,7 +37,6 @@ import {
   useAuth,
   formatUserIdentifier,
   isInternalPhoneEmail,
-  isInternalFacebookEmail,
 } from "@/lib/auth-context";
 import {
   getUserScreeningHistory,
@@ -50,7 +49,6 @@ import {
   fetchClinicalProfileFromFirestore,
   clearLocalScreenings,
 } from "@/lib/firestore";
-import { FacebookIcon } from "@/components/icons/BrandIcons";
 import { ProgressTrendChart } from "@/components/dashboard/ProgressTrendChart";
 import { generateClinicalPdfReport } from "@/lib/report-pdf";
 
@@ -122,7 +120,6 @@ export default function ProfilePage() {
     profilePhotoUrl,
     updateUserPassword,
     linkGoogleAccount,
-    linkFacebookAccount,
     linkPhoneWithOtp,
     updateUserPhoto,
     signOut,
@@ -155,12 +152,6 @@ export default function ProfilePage() {
   } | null>(null);
   const [isLinkingGoogle, setIsLinkingGoogle] = useState(false);
   const [googleStatus, setGoogleStatus] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  const [isLinkingFacebook, setIsLinkingFacebook] = useState(false);
-  const [facebookStatus, setFacebookStatus] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
@@ -384,22 +375,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleConnectFacebook = async () => {
-    setFacebookStatus(null);
-    setIsLinkingFacebook(true);
-    try {
-      await linkFacebookAccount();
-      setFacebookStatus({ type: "success", text: "Facebook connected. You can now sign in with Facebook." });
-    } catch (e: unknown) {
-      setFacebookStatus({
-        type: "error",
-        text: e instanceof Error ? e.message : "Could not connect Facebook.",
-      });
-    } finally {
-      setIsLinkingFacebook(false);
-    }
-  };
-
   const handleConnectGoogle = async () => {
     setGoogleStatus(null);
     setIsLinkingGoogle(true);
@@ -618,10 +593,6 @@ export default function ProfilePage() {
     user?.providerData?.some((p) => p.providerId === "google.com") ||
       linkedIdentity?.googleLinked
   );
-  const isFacebookLinked = Boolean(
-    user?.providerData?.some((p) => p.providerId === "facebook.com") ||
-      (user && isInternalFacebookEmail(user.email))
-  );
   const linkedPhoneDisplay =
     linkedIdentity?.formattedPhone ||
     (user && isInternalPhoneEmail(user.email)
@@ -629,16 +600,11 @@ export default function ProfilePage() {
       : null);
   const linkedRealEmail =
     linkedIdentity?.linkedEmail ||
-    (user?.email &&
-    !isInternalPhoneEmail(user.email) &&
-    !isInternalFacebookEmail(user.email)
-      ? user.email
-      : null);
+    (user?.email && !isInternalPhoneEmail(user.email) ? user.email : null);
   const isPasswordLinked = Boolean(
     linkedIdentity?.hasCustomPassword ||
       (user &&
         !isInternalPhoneEmail(user.email) &&
-        !isInternalFacebookEmail(user.email) &&
         user.providerData?.some((p) => p.providerId === "password"))
   );
 
@@ -1327,7 +1293,7 @@ export default function ProfilePage() {
 
               {!user ? (
                 <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-2xl p-3.5">
-                  Please sign in first to manage your Phone OTP, Password, Google, and Facebook sign-in methods.
+                  Please sign in first to manage your Phone OTP, Password, and Google sign-in methods.
                 </p>
               ) : (
                 <div className="space-y-5">
@@ -1586,23 +1552,25 @@ export default function ProfilePage() {
                     )}
                   </div>
 
-                  {/* 3. Social Sign-In (Google & Facebook in 1 Row) */}
+                  {/* 3. Google Sign-In Link (Permutations A2, C2) */}
                   <div className="pt-4 border-t border-slate-100 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-800">
-                        1-Click Social Sign-In
-                      </span>
-                      <span className="text-[11px] text-slate-500">
-                        Connect to sign into this same account
-                      </span>
-                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <span className="text-xs font-bold text-slate-800 block">
+                          Google 1-Click Sign-In
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          {isGoogleLinked
+                            ? "Google account is connected to this profile"
+                            : "Connect your Google account for 1-click sign-in"}
+                        </span>
+                      </div>
 
-                    <div className="grid grid-cols-2 gap-2.5">
                       <button
                         type="button"
                         onClick={handleConnectGoogle}
                         disabled={isLinkingGoogle}
-                        className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 px-3.5 py-2.5 rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-60"
+                        className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 px-4 py-2 rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-60"
                       >
                         {isLinkingGoogle ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
@@ -1630,35 +1598,10 @@ export default function ProfilePage() {
                             />
                           </svg>
                         )}
-                        <span className="truncate">
+                        <span>
                           {isGoogleLinked ? "Google Connected" : "Connect Google"}
                         </span>
                         {isGoogleLinked && (
-                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                        )}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleConnectFacebook}
-                        disabled={isLinkingFacebook || isFacebookLinked}
-                        className={`w-full inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-full text-xs font-bold shadow-sm transition-all ${
-                          isFacebookLinked
-                            ? "bg-emerald-50 text-emerald-800 border border-emerald-200 cursor-default"
-                            : "bg-[#1877F2] hover:bg-[#166FE5] text-white cursor-pointer disabled:opacity-60"
-                        }`}
-                      >
-                        {isLinkingFacebook ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
-                        ) : (
-                          <FacebookIcon className="h-3.5 w-3.5 shrink-0" />
-                        )}
-                        <span className="truncate">
-                          {isFacebookLinked
-                            ? "Facebook Connected"
-                            : "Connect Facebook"}
-                        </span>
-                        {isFacebookLinked && (
                           <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
                         )}
                       </button>
@@ -1673,18 +1616,6 @@ export default function ProfilePage() {
                         }`}
                       >
                         {googleStatus.text}
-                      </p>
-                    )}
-
-                    {facebookStatus && (
-                      <p
-                        className={`text-xs font-medium px-3 py-2 rounded-xl border ${
-                          facebookStatus.type === "success"
-                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                            : "bg-red-50 text-red-700 border-red-200"
-                        }`}
-                      >
-                        {facebookStatus.text}
                       </p>
                     )}
                   </div>

@@ -497,9 +497,8 @@ function esc(s) {
 // Clinical Protocols, Rehab Exercises & National Centres (Website Feature Parity)
 // ============================================================================
 const FIREBASE_API_KEY = "AIzaSyDd4ElwFoZ46NzcmLZoR0VUYqGFZDfyBX0";
-// Live Sonora website: hosts the phone-OTP API (/api/auth/otp) and the Facebook sign-in bridge page.
+// Live Sonora website: hosts the phone-OTP API (/api/auth/otp).
 const SITE_BASE = "https://sonora-liart.vercel.app";
-const FACEBOOK_F = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FFFFFF" d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.95.93-1.95 1.88v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>';
 const API_BASE = "https://lumosmaximus-dysarthrianet-api.hf.space";
 const STORAGE_KEY = "sonora_state_v4";
 const LEGACY_KEY = "sonora_clinical_state_v3";
@@ -1131,82 +1130,6 @@ window.verifyPhoneOtp = async function(e) {
     syncUserSessions();
   } catch (err) {
     state.authError = /Failed to fetch|timeout/i.test(err.message) ? "No internet connection." : err.message;
-  }
-  state.authBusy = false; render();
-};
-
-// ---------------------------------------------------------------------------
-// Facebook (browser OAuth on the Sonora website -> sonora://auth deep link)
-// ---------------------------------------------------------------------------
-window.triggerFacebookSignIn = function() {
-  state.authError = "";
-  state.authBusy = true; render();
-  openExternal(SITE_BASE + "/auth/mobile/facebook");
-  // If the user abandons the browser, let them try again.
-  setTimeout(() => { if (state.authBusy && !state.user) { state.authBusy = false; render(); } }, 20000);
-};
-
-window.onNativeAuthRedirect = async function(url) {
-  let params;
-  try { params = new URL(url).searchParams; } catch (e) { return; }
-  if (params.get("provider") !== "facebook") return;
-  const token = params.get("access_token");
-  if (!token) {
-    state.authBusy = false;
-    state.authError = params.get("error") ? "Facebook sign-in was cancelled." : "Facebook sign-in failed.";
-    render(); return;
-  }
-  state.authBusy = true; state.authError = ""; render();
-  try {
-    const res = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=" + FIREBASE_API_KEY, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        postBody: "access_token=" + encodeURIComponent(token) + "&providerId=facebook.com",
-        requestUri: "http://localhost", returnSecureToken: true, returnIdpCredential: true
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      const m = (data && data.error && data.error.message) || "";
-      if (/OPERATION_NOT_ALLOWED/.test(m)) throw new Error("Facebook sign-in is not enabled yet.");
-      throw new Error(m.replace(/_/g, " ").toLowerCase() || "Facebook sign-in failed.");
-    }
-    if (data.needConfirmation) {
-      const fbDirect = await otpApi({ action: "facebook_direct_login", accessToken: token });
-      let r = await firebasePasswordCall("accounts:signInWithPassword", fbDirect.firebaseEmail, fbDirect.firebasePassword);
-      if (!r.ok && fbDirect.fallbackEmail) {
-        r = await firebasePasswordCall("accounts:signInWithPassword", fbDirect.fallbackEmail, fbDirect.fallbackPassword);
-        if (!r.ok) {
-          r = await firebasePasswordCall("accounts:signUp", fbDirect.fallbackEmail, fbDirect.fallbackPassword);
-        }
-      } else if (!r.ok) {
-        r = await firebasePasswordCall("accounts:signUp", fbDirect.firebaseEmail, fbDirect.firebasePassword);
-      }
-      if (!r.ok) throw new Error("Could not open your Facebook account. Please try again.");
-      const d = r.data;
-      state.user = {
-        uid: d.localId,
-        email: fbDirect.fbEmail || data.email || "",
-        name: fbDirect.fbName || data.displayName || data.firstName || "there",
-        photo: fbDirect.fbPhoto || data.photoUrl || "",
-        provider: "facebook"
-      };
-      otpApi({ action: "sync_identity", uid: d.localId, firebaseAuthEmail: d.email || fbDirect.firebaseEmail, plainFirebasePassword: fbDirect.firebasePassword, linkedEmail: fbDirect.fbEmail || "" }).catch(() => {});
-    } else {
-      state.user = {
-        uid: data.localId,
-        email: data.email || "",
-        name: data.displayName || data.firstName || "there",
-        photo: data.photoUrl || "",
-        provider: "facebook"
-      };
-    }
-    hydrateSeedProfile(state.user);
-    state.sessions = loadUserSessionsHydrated(state.user);
-    saveState(); haptic(30);
-    syncUserSessions();
-  } catch (e) {
-    state.authError = /Failed to fetch|NetworkError/i.test(e.message) ? "No internet connection." : e.message;
   }
   state.authBusy = false; render();
 };
@@ -2340,14 +2263,9 @@ function renderAuthCard(up) {
   }
   return `
         <div class="card" style="padding:18px;">
-          <div class="row" style="gap:10px;">
-            <button type="button" class="btn ghost" style="flex:1; padding:12px 10px;" onclick="triggerGoogleSignIn()" ${busy}>
-              ${GOOGLE_G}<span>Google</span>
-            </button>
-            <button type="button" class="btn" style="flex:1; padding:12px 10px; background:#1877F2;" onclick="triggerFacebookSignIn()" ${busy}>
-              ${FACEBOOK_F}<span>Facebook</span>
-            </button>
-          </div>
+          <button type="button" class="btn ghost" onclick="triggerGoogleSignIn()" ${busy}>
+            ${GOOGLE_G}<span>Continue with Google</span>
+          </button>
           <button type="button" class="btn ghost" style="margin-top:10px;" onclick="openPhoneLogin()" ${busy}>
             ${icon("phone", "sm")}<span>Continue with phone</span>
           </button>

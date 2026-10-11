@@ -18,11 +18,10 @@ import {
   linkWithPopup,
   linkWithCredential,
   EmailAuthProvider,
-  FacebookAuthProvider,
   updateProfile,
 } from "firebase/auth";
 import { useSession, useUser, useDescope } from "@descope/nextjs-sdk/client";
-import { auth, googleProvider, facebookProvider } from "./firebase";
+import { auth, googleProvider } from "./firebase";
 import {
   ADMIN_EMAIL,
   clearLocalScreenings,
@@ -30,7 +29,7 @@ import {
   saveUserProfilePhoto,
 } from "./firestore";
 
-export type AuthProviderType = "google" | "facebook" | "password" | "phone";
+export type AuthProviderType = "google" | "password" | "phone";
 
 export interface LinkedIdentityInfo {
   uid: string;
@@ -49,14 +48,6 @@ export function isInternalPhoneEmail(email?: string | null): boolean {
   );
 }
 
-export function isInternalFacebookEmail(email?: string | null): boolean {
-  return Boolean(
-    email &&
-      email.startsWith("fb_") &&
-      email.endsWith("@sonora.speech.ai")
-  );
-}
-
 export function formatUserIdentifier(
   email?: string | null,
   displayName?: string | null,
@@ -64,8 +55,7 @@ export function formatUserIdentifier(
 ): string {
   if (
     linkedIdentity?.linkedEmail &&
-    !isInternalPhoneEmail(linkedIdentity.linkedEmail) &&
-    !isInternalFacebookEmail(linkedIdentity.linkedEmail)
+    !isInternalPhoneEmail(linkedIdentity.linkedEmail)
   ) {
     return linkedIdentity.linkedEmail;
   }
@@ -82,31 +72,7 @@ export function formatUserIdentifier(
     }
     return `+${digits}`;
   }
-  if (isInternalFacebookEmail(email)) {
-    return displayName || "Facebook Account";
-  }
   return displayName || email || "";
-}
-
-function friendlyFacebookError(err: unknown): string {
-  const code = (err as { code?: string })?.code || "";
-  switch (code) {
-    case "auth/account-exists-with-different-credential":
-      return "This email is already registered with another sign-in method. Sign in with that method first, then connect Facebook from your Profile.";
-    case "auth/credential-already-in-use":
-      return "This Facebook account is already connected to a different Sonora account.";
-    case "auth/popup-closed-by-user":
-    case "auth/cancelled-popup-request":
-      return "Facebook sign-in was cancelled.";
-    case "auth/popup-blocked":
-      return "Your browser blocked the Facebook window. Allow pop-ups for this site and try again.";
-    case "auth/operation-not-allowed":
-      return "Facebook sign-in is not enabled yet for this project.";
-    case "auth/unauthorized-domain":
-      return "This website address is not authorised for sign-in yet.";
-    default:
-      return err instanceof Error ? err.message : "Facebook sign-in failed.";
-  }
 }
 
 interface AuthContextType {
@@ -117,7 +83,6 @@ interface AuthContextType {
   linkedIdentity: LinkedIdentityInfo | null;
   profilePhotoUrl: string | null;
   signInWithGoogle: () => Promise<void>;
-  signInWithFacebook: () => Promise<void>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
   signUpWithEmail: (email: string, pass: string) => Promise<void>;
   signInWithPhoneVerified: (
@@ -128,7 +93,6 @@ interface AuthContextType {
   ) => Promise<void>;
   updateUserPassword: (newPass: string, linkedEmail?: string) => Promise<void>;
   linkGoogleAccount: () => Promise<void>;
-  linkFacebookAccount: () => Promise<void>;
   linkPhoneWithOtp: (
     countryCode: string,
     mobileNumber: string,
@@ -147,13 +111,11 @@ const AuthContext = createContext<AuthContextType>({
   linkedIdentity: null,
   profilePhotoUrl: null,
   signInWithGoogle: async () => {},
-  signInWithFacebook: async () => {},
   signInWithEmail: async () => {},
   signUpWithEmail: async () => {},
   signInWithPhoneVerified: async () => {},
   updateUserPassword: async () => {},
   linkGoogleAccount: async () => {},
-  linkFacebookAccount: async () => {},
   linkPhoneWithOtp: async () => {},
   refreshIdentityLinks: async () => {},
   updateUserPhoto: async () => {},
@@ -226,9 +188,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     ? isInternalPhoneEmail(user.email) ||
       user.providerData?.some((p) => p.providerId === "phone")
       ? "phone"
-      : isInternalFacebookEmail(user.email) ||
-        user.providerData?.some((p) => p.providerId === "facebook.com")
-      ? "facebook"
       : user.providerData?.some((p) => p.providerId === "google.com")
       ? "google"
       : "password"
@@ -289,84 +248,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       linkedEmail: cred.user.email || undefined,
       googleLinked: true,
     });
-  };
-
-  const signInWithFacebook = async () => {
-    try {
-      const cred = await signInWithPopup(auth, facebookProvider);
-      await syncIdentityOnServer({
-        uid: cred.user.uid,
-        firebaseAuthEmail: cred.user.email || undefined,
-        linkedEmail: cred.user.email || undefined,
-      });
-    } catch (err: unknown) {
-      const code = (err as { code?: string })?.code || "";
-      if (code === "auth/account-exists-with-different-credential") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pendingCred = FacebookAuthProvider.credentialFromError(err as any);
-        const tokenFromErr =
-          pendingCred?.accessToken ||
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (err as any)?.customData?._tokenResponse?.oauthAccessToken ||
-          "";
-        if (tokenFromErr) {
-          const res = await fetch("/api/auth/otp", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "facebook_direct_login",
-              accessToken: tokenFromErr,
-            }),
-          });
-          const data = await res.json();
-          if (res.ok && data.success) {
-            let signedInUser: User;
-            let activeAuthEmail = String(data.firebaseEmail);
-            let activeAuthPass = String(data.firebasePassword);
-            try {
-              const c = await signInWithEmailAndPassword(
-                auth,
-                activeAuthEmail,
-                activeAuthPass
-              );
-              signedInUser = c.user;
-            } catch {
-              activeAuthEmail = String(data.fallbackEmail || data.firebaseEmail);
-              activeAuthPass = String(data.fallbackPassword || data.firebasePassword);
-              try {
-                const c = await signInWithEmailAndPassword(
-                  auth,
-                  activeAuthEmail,
-                  activeAuthPass
-                );
-                signedInUser = c.user;
-              } catch {
-                const c = await createUserWithEmailAndPassword(
-                  auth,
-                  activeAuthEmail,
-                  activeAuthPass
-                );
-                signedInUser = c.user;
-              }
-            }
-            if (data.fbName || data.fbPhoto) {
-              await updateProfile(signedInUser, {
-                displayName: signedInUser.displayName || data.fbName || undefined,
-                photoURL: signedInUser.photoURL || data.fbPhoto || undefined,
-              });
-            }
-            await syncIdentityOnServer({
-              uid: signedInUser.uid,
-              firebaseAuthEmail: activeAuthEmail,
-              plainFirebasePassword: activeAuthPass,
-              linkedEmail: data.fbEmail || undefined,
-            });
-            return;
-          }
-        }
-      }
-      throw new Error(friendlyFacebookError(err));
-    }
   };
 
   const signInWithEmail = async (email: string, pass: string) => {
@@ -539,20 +420,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const linkFacebookAccount = async () => {
-    if (!auth.currentUser) {
-      await signInWithFacebook();
-      return;
-    }
-    try {
-      await linkWithPopup(auth.currentUser, facebookProvider);
-    } catch (err: unknown) {
-      const code = (err as { code?: string })?.code || "";
-      if (code === "auth/provider-already-linked") return;
-      throw new Error(friendlyFacebookError(err));
-    }
-  };
-
   const linkPhoneWithOtp = async (
     countryCode: string,
     mobileNumber: string,
@@ -647,13 +514,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         linkedIdentity,
         profilePhotoUrl,
         signInWithGoogle,
-        signInWithFacebook,
         signInWithEmail,
         signUpWithEmail,
         signInWithPhoneVerified,
         updateUserPassword,
         linkGoogleAccount,
-        linkFacebookAccount,
         linkPhoneWithOtp,
         refreshIdentityLinks,
         updateUserPhoto,
