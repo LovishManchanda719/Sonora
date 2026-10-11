@@ -644,6 +644,81 @@ export default function ResourcesPage() {
               </Link>
             </div>
           </div>
+
+          {/* Clinical Audio-Visual Reference Card (University of Utah Eccles Health Sciences Library) */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-soft-md">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+              {/* Left Column: Clinical Breakdown & Attribution */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 text-clinical-cyan border border-sky-200/70 text-[11px] font-bold uppercase tracking-wider">
+                  <Stethoscope className="h-3.5 w-3.5 shrink-0" />
+                  <span>Clinical Video Demonstration</span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-xl font-black text-slate-900 tracking-tight leading-snug">
+                    What Does Dysarthria Sound Like in a Clinical Exam?
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Watch this clinical Mental Status Exam (MSE) demonstration to hear how neurologists and speech-language pathologists distinguish motor speech signs:
+                  </p>
+                </div>
+
+                <div className="space-y-2.5 text-xs text-slate-600">
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                    <span className="font-bold text-slate-900 block">
+                      1. Dysarthria (Articulatory Execution)
+                    </span>
+                    <span>
+                      Slurred consonant boundaries and reduced articulatory precision while language structure remains intact.
+                    </span>
+                  </div>
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                    <span className="font-bold text-slate-900 block">
+                      2. Dysphonia (Phonation &amp; Glottal Quality)
+                    </span>
+                    <span>
+                      Hoarse, breathy, or strained vocal fold vibration assessed during sustained vowel phonation.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-1 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100">
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Source:{" "}
+                    <strong className="text-slate-600">
+                      Spencer S. Eccles Health Sciences Library
+                    </strong>{" "}
+                    (University of Utah). Embedded via official YouTube player for educational reference.
+                  </p>
+                  <a
+                    href="https://youtu.be/SMmoAByOX_U"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-clinical-cyan hover:underline shrink-0"
+                  >
+                    <span>Watch on YouTube</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Right Column: Official 16:9 YouTube Embed Player */}
+              <div className="lg:col-span-7">
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-soft-md">
+                  <iframe
+                    src="https://www.youtube.com/embed/SMmoAByOX_U?rel=0"
+                    title="Mental Status Exam: Dysarthria, Dysphonia, & Confabulation Examples — Eccles Health Sciences Library"
+                    className="absolute inset-0 w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
