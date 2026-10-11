@@ -452,10 +452,13 @@ export default function ProfilePage() {
     }
   };
 
-  const handleVerifyPhoneLinkOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerifyPhoneLinkOtp = async (
+    e?: React.FormEvent,
+    codeOverride?: string
+  ) => {
+    if (e) e.preventDefault();
     setPhoneStatus(null);
-    const cleanCode = phoneOtpCode.replace(/\D/g, "");
+    const cleanCode = (codeOverride ?? phoneOtpCode).replace(/\D/g, "");
     if (cleanCode.length !== 6) {
       setPhoneStatus({
         type: "error",
@@ -485,6 +488,35 @@ export default function ProfilePage() {
       setIsVerifyingPhoneOtp(false);
     }
   };
+
+  useEffect(() => {
+    if (phoneLinkStep !== "verify_otp") return;
+    if (typeof window === "undefined" || !("OTPCredential" in window)) return;
+    const ac = new AbortController();
+    (
+      navigator.credentials as unknown as {
+        get: (opts: unknown) => Promise<{ code?: string } | null>;
+      }
+    )
+      .get({
+        otp: { transport: ["sms"] },
+        signal: ac.signal,
+      })
+      .then((otp) => {
+        if (otp?.code) {
+          const digits = otp.code.replace(/\D/g, "").slice(0, 6);
+          if (digits.length === 6) {
+            setPhoneOtpCode(digits);
+            void handleVerifyPhoneLinkOtp(undefined, digits);
+          }
+        }
+      })
+      .catch(() => {
+        // Ignore abort or unsupported WebOTP
+      });
+    return () => ac.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phoneLinkStep]);
 
   const handleDownloadSessionPdf = (session: StoredScreening) => {
     try {
@@ -1492,13 +1524,21 @@ export default function ProfilePage() {
                           <input
                             type="text"
                             inputMode="numeric"
+                            autoComplete="one-time-code"
                             maxLength={6}
                             value={phoneOtpCode}
-                            onChange={(e) =>
-                              setPhoneOtpCode(
-                                e.target.value.replace(/\D/g, "").slice(0, 6)
-                              )
-                            }
+                            onChange={(e) => {
+                              const nextCode = e.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 6);
+                              setPhoneOtpCode(nextCode);
+                              if (nextCode.length === 6 && !isVerifyingPhoneOtp) {
+                                void handleVerifyPhoneLinkOtp(
+                                  undefined,
+                                  nextCode
+                                );
+                              }
+                            }}
                             placeholder="••••••"
                             className="flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-center text-sm font-extrabold tracking-[0.35em] text-slate-900 focus:border-slate-900 focus:outline-none"
                           />

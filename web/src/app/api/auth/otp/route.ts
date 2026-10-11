@@ -713,6 +713,8 @@ export async function POST(request: NextRequest) {
           phoneKey,
           firebaseEmail: resolvedEmail,
           firebasePassword: resolvedPassword,
+          defaultFirebaseEmail: defaultCreds.firebaseEmail,
+          defaultFirebasePassword: defaultCreds.firebasePassword,
           formattedDisplay: defaultCreds.formattedDisplay,
           phoneNumber: defaultCreds.phoneNumber,
         },

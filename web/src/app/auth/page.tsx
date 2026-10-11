@@ -266,7 +266,23 @@ export default function AuthPage() {
   };
 
   const handleOtpDigitChange = (idx: number, rawVal: string) => {
-    const digit = rawVal.replace(/\D/g, "").slice(-1);
+    const cleaned = rawVal.replace(/\D/g, "");
+    if (cleaned.length > 1) {
+      const sliced = cleaned.slice(0, OTP_LENGTH);
+      const next = Array(OTP_LENGTH)
+        .fill("")
+        .map((_, i) => sliced[i] || "");
+      setOtpDigits(next);
+      setErrorMsg(null);
+      const focusIdx = Math.min(sliced.length, OTP_LENGTH - 1);
+      otpInputRefs.current[focusIdx]?.focus();
+      if (sliced.length === OTP_LENGTH) {
+        void verifyOtpCode(sliced);
+      }
+      return;
+    }
+
+    const digit = cleaned.slice(-1);
     const next = [...otpDigits];
     next[idx] = digit;
     setOtpDigits(next);
@@ -586,7 +602,7 @@ export default function AuthPage() {
                           type="text"
                           inputMode="numeric"
                           autoComplete={idx === 0 ? "one-time-code" : "off"}
-                          maxLength={1}
+                          maxLength={idx === 0 ? OTP_LENGTH : 1}
                           value={digit}
                           onChange={(e) =>
                             handleOtpDigitChange(idx, e.target.value)

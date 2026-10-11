@@ -3,10 +3,12 @@ package ai.sonora.speech;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -53,11 +55,16 @@ import androidx.credentials.exceptions.GetCredentialCancellationException;
 import androidx.credentials.exceptions.GetCredentialException;
 import androidx.credentials.exceptions.NoCredentialException;
 
+import com.google.android.gms.auth.api.phone.SmsRetriever;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
 
 import java.util.Locale;
 import java.util.concurrent.Executor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONObject;
 
@@ -73,14 +80,15 @@ public class MainActivity extends Activity {
 
     private static final int PERMISSION_REQ_CODE = 1001;
     private static final int FILE_CHOOSER_REQ_CODE = 1002;
-
     private static final int LOCATION_REQ_CODE = 1004;
+    private static final int SMS_CONSENT_REQ_CODE = 1005;
 
     private WebView webView;
     private TextToSpeech tts;
     private boolean ttsReady = false;
     private boolean pendingLocation = false;
     private ValueCallback<Uri[]> filePathCallback;
+    private BroadcastReceiver smsConsentReceiver;
 
     private int getSystemDimenPx(String name, int fallbackDp) {
         Resources res = getResources();
@@ -451,6 +459,53 @@ public class MainActivity extends Activity {
         }, 15000);
     }
 
+    private void stopSmsConsentListener() {
+        if (smsConsentReceiver != null) {
+            try {
+                unregisterReceiver(smsConsentReceiver);
+            } catch (Exception ignored) {
+            }
+            smsConsentReceiver = null;
+        }
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private void startSmsConsentListener() {
+        stopSmsConsentListener();
+        try {
+            SmsRetriever.getClient(this).startSmsUserConsent(null);
+            smsConsentReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (intent == null || !SmsRetriever.SMS_RETRIEVED_ACTION.equals(intent.getAction())) {
+                        return;
+                    }
+                    Bundle extras = intent.getExtras();
+                    if (extras == null) return;
+                    Status smsRetrieverStatus = (Status) extras.get(SmsRetriever.EXTRA_STATUS);
+                    if (smsRetrieverStatus == null) return;
+
+                    if (smsRetrieverStatus.getStatusCode() == CommonStatusCodes.SUCCESS) {
+                        Intent consentIntent = extras.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT);
+                        if (consentIntent != null) {
+                            try {
+                                startActivityForResult(consentIntent, SMS_CONSENT_REQ_CODE);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    }
+                }
+            };
+            IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(smsConsentReceiver, intentFilter, SmsRetriever.SEND_PERMISSION, null, Context.RECEIVER_EXPORTED);
+            } else {
+                registerReceiver(smsConsentReceiver, intentFilter, SmsRetriever.SEND_PERMISSION, null);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == FILE_CHOOSER_REQ_CODE) {
@@ -458,6 +513,17 @@ public class MainActivity extends Activity {
                 Uri[] results = WebChromeClient.FileChooserParams.parseResult(resultCode, data);
                 filePathCallback.onReceiveValue(results);
                 filePathCallback = null;
+            }
+        } else if (requestCode == SMS_CONSENT_REQ_CODE) {
+            stopSmsConsentListener();
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                String message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
+                if (message != null) {
+                    Matcher matcher = Pattern.compile("\\b(\\d{6})\\b").matcher(message);
+                    if (matcher.find()) {
+                        jsCall("onNativeSmsOtp", matcher.group(1));
+                    }
+                }
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
@@ -516,6 +582,17 @@ public class MainActivity extends Activity {
                 @Override
                 public void run() {
                     startGoogleSignIn();
+                }
+            });
+        }
+
+        /** Arms Play Services SMS User Consent listener to auto-read the incoming 6-digit OTP SMS. */
+        @JavascriptInterface
+        public void startSmsOtpListener() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    startSmsConsentListener();
                 }
             });
         }
@@ -692,6 +769,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        stopSmsConsentListener();
         if (tts != null) {
             try {
                 tts.stop();

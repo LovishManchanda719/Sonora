@@ -299,7 +299,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     formattedDisplay: string,
     mobileNumber?: string
   ) => {
+    const extractedMobile =
+      mobileNumber ||
+      (isInternalPhoneEmail(firebaseEmail)
+        ? firebaseEmail
+            .replace("phone_91", "")
+            .replace("phone_", "")
+            .replace("@sonora.speech.ai", "")
+        : undefined);
+
     let signedInUser: User;
+    let activeEmail = firebaseEmail;
     try {
       const cred = await signInWithEmailAndPassword(
         auth,
@@ -310,13 +320,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!cred.user.displayName && formattedDisplay) {
         await updateProfile(cred.user, { displayName: formattedDisplay });
       }
-    } catch (err: unknown) {
-      const code = (err as { code?: string })?.code || "";
-      if (
-        code === "auth/user-not-found" ||
-        code === "auth/invalid-credential" ||
-        code === "auth/invalid-login-credentials"
-      ) {
+    } catch {
+      try {
         const cred = await createUserWithEmailAndPassword(
           auth,
           firebaseEmail,
@@ -326,24 +331,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (formattedDisplay) {
           await updateProfile(cred.user, { displayName: formattedDisplay });
         }
-      } else {
-        throw err;
+      } catch {
+        // Fallback when the primary phone_91... email already exists with a custom password after a serverless reset
+        const fallbackEmail = `phone_otp_91${extractedMobile || "user"}@sonora.speech.ai`;
+        activeEmail = fallbackEmail;
+        try {
+          const cred = await signInWithEmailAndPassword(
+            auth,
+            fallbackEmail,
+            firebasePassword
+          );
+          signedInUser = cred.user;
+        } catch {
+          const cred = await createUserWithEmailAndPassword(
+            auth,
+            fallbackEmail,
+            firebasePassword
+          );
+          signedInUser = cred.user;
+          if (formattedDisplay) {
+            await updateProfile(cred.user, { displayName: formattedDisplay });
+          }
+        }
       }
     }
-
-    const extractedMobile =
-      mobileNumber ||
-      (isInternalPhoneEmail(firebaseEmail)
-        ? firebaseEmail
-            .replace("phone_91", "")
-            .replace("phone_", "")
-            .replace("@sonora.speech.ai", "")
-        : undefined);
 
     await syncIdentityOnServer({
       uid: signedInUser.uid,
       mobileNumber: extractedMobile,
-      firebaseAuthEmail: signedInUser.email || firebaseEmail,
+      firebaseAuthEmail: signedInUser.email || activeEmail,
       plainFirebasePassword: firebasePassword,
     });
   };
