@@ -216,7 +216,7 @@ export default function HomePage() {
           <div className="pt-2.5 sm:pt-4 mt-2.5 sm:mt-0 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 text-[10px] sm:text-xs text-slate-600">
             <span>135 Patients</span>
             <Link
-              href="/resources?tab=datasets"
+              href="/about#datasets"
               className="font-bold text-clinical-cyan hover:underline inline-flex items-center gap-1"
             >
               <span>Datasets &amp; Links</span>

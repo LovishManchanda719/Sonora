@@ -18,6 +18,186 @@ import {
   ExternalLink,
 } from "lucide-react";
 
+const DATASETS_USED = [
+  {
+    id: "torgo",
+    name: "TORGO Database of Acoustic & Articulatory Speech",
+    institution: "University of Toronto & Holland Bloorview Kids Rehabilitation Hospital (Canada)",
+    language: "English",
+    cohort: "Speakers with Cerebral Palsy (CP), Amyotrophic Lateral Sclerosis (ALS), and Matched Controls",
+    roleInProject:
+      "Primary English dysarthria training & cross-corpus source benchmark (Sustained vowels, DDK repetitions, words, and standardized clinical sentences).",
+    citation:
+      "Rudzicz, F., Namasivayam, A. K., & Wolff, T. (2012). The TORGO database of acoustic and articulatory speech from speakers with dysarthria. Language Resources and Evaluation, 46(4), 523–541.",
+    links: [
+      {
+        label: "Official UToronto Portal",
+        url: "https://www.cs.toronto.edu/~complingweb/data/TORGO/torgo.html",
+      },
+      {
+        label: "SpringerLink Paper (DOI)",
+        url: "https://doi.org/10.1007/s10579-011-9145-0",
+      },
+      {
+        label: "Hugging Face Dataset Mirror",
+        url: "https://huggingface.co/datasets/abnerh/TORGO-database",
+      },
+    ],
+  },
+  {
+    id: "easycall",
+    name: "EasyCall Dysarthric Speech Corpus",
+    institution: "University of Genoa & Istituto Italiano di Tecnologia — IIT (Italy)",
+    language: "Italian",
+    cohort: "Multi-Etiology Dysarthric Speakers (Mild, Moderate & Severe) + Healthy Controls",
+    roleInProject:
+      "Smartphone-recorded dysarthric corpus used to train and validate CORAL heterogeneous domain adaptation across real-world mobile microphone channels.",
+    citation:
+      "Turrisi, R., Braccia, A., Emanuele, M., Giulietti, S., Pugliatti, M., Sensi, M., Fadiga, L., & Badino, L. (2021). EasyCall corpus: a dysarthric speech dataset. Proc. Interspeech 2021, 41–45.",
+    links: [
+      {
+        label: "ISCA Interspeech Paper",
+        url: "https://www.isca-archive.org/interspeech_2021/turrisi21_interspeech.html",
+      },
+      {
+        label: "Official Dataset DOI",
+        url: "https://doi.org/10.21437/Interspeech.2021-549",
+      },
+    ],
+  },
+  {
+    id: "ipvs",
+    name: "Italian Parkinson's Voice and Speech (IPVS) Corpus",
+    institution: "University of Bari Aldo Moro & Fondazione Salvatore Maugeri (Italy)",
+    language: "Italian",
+    cohort: "Idiopathic Parkinson's Disease (Hypokinetic Dysarthria) & Healthy Elderly Controls",
+    roleInProject:
+      "Evaluates phonatory tremor, hypophonia, DDK (/pa-ta-ka/) articulatory breakdown, and connected passage reading in hypokinetic dysarthria.",
+    citation:
+      "Dimauro, G., Di Nicola, V., Bevilacqua, V., Caivano, D., & Girardi, F. (2017). Assessment of speech intelligibility in Parkinson's disease using a speech-to-text system. IEEE Access, 5, 22199–22208.",
+    links: [
+      {
+        label: "IEEE DataPort Dataset",
+        url: "https://ieee-dataport.org/open-access/italian-parkinsons-voice-and-speech",
+      },
+      {
+        label: "IEEE Access Paper (DOI)",
+        url: "https://doi.org/10.1109/ACCESS.2017.2762475",
+      },
+    ],
+  },
+  {
+    id: "uaspeech",
+    name: "UA-Speech Universal Access Dysarthric Corpus (Benchmark Reference)",
+    institution: "University of Illinois Urbana-Champaign (UIUC Speech & Hearing Science)",
+    language: "English",
+    cohort: "Speakers with Spastic, Athetoid, and Mixed Dysarthria Stratified by Intelligibility",
+    roleInProject:
+      "Reference clinical intelligibility stratification scale (High, Mild, Moderate, Severe) used for severity threshold calibration in DysarthriaNet-XC.",
+    citation:
+      "Kim, H., Hasegawa-Johnson, M., Perlman, A., Gunderson, J., Huang, T. S., Watkin, K., & Frame, S. (2008). Dysarthric speech database for universal access research. Proc. Interspeech 2008, 1741–1744.",
+    links: [
+      {
+        label: "UIUC Official Corpus Page",
+        url: "http://www.isle.illinois.edu/sst/data/UASpeech/",
+      },
+      {
+        label: "ISCA Interspeech Paper",
+        url: "https://www.isca-archive.org/interspeech_2008/kim08c_interspeech.html",
+      },
+    ],
+  },
+];
+
+const FOUNDATION_MODELS = [
+  {
+    name: "Wav2Vec 2.0 Base (facebook/wav2vec2-base)",
+    org: "Meta AI Research / Hugging Face",
+    description:
+      "Self-supervised 16 kHz raw-waveform transformer encoder extracting early acoustic layer representations (Layers 1–4) sensitive to vocal fold jitter, shimmer, and phonatory instability.",
+    links: [
+      { label: "Hugging Face Model Card", url: "https://huggingface.co/facebook/wav2vec2-base" },
+      { label: "NeurIPS 2020 Paper", url: "https://arxiv.org/abs/2006.11477" },
+    ],
+  },
+  {
+    name: "WavLM Base Plus (microsoft/wavlm-base-plus)",
+    org: "Microsoft Research / Hugging Face",
+    description:
+      "Denoised masked speech prediction backbone trained on 94,000 hours of speech for robust dysarthric articulation feature extraction under ambient room noise.",
+    links: [
+      { label: "Hugging Face Model Card", url: "https://huggingface.co/microsoft/wavlm-base-plus" },
+      { label: "IEEE JSTSP Paper", url: "https://arxiv.org/abs/2110.13900" },
+    ],
+  },
+  {
+    name: "SpeechBrain ECAPA-TDNN (spkrec-ecapa-voxceleb)",
+    org: "SpeechBrain Consortium",
+    description:
+      "Channel-attentive time-delay neural network capturing vocal tract resonance, formant transitions, and speaker-level glottal timbre.",
+    links: [
+      { label: "Hugging Face Model Card", url: "https://huggingface.co/speechbrain/spkrec-ecapa-voxceleb" },
+      { label: "ECAPA-TDNN Paper", url: "https://arxiv.org/abs/2005.07143" },
+    ],
+  },
+  {
+    name: "CORAL Domain Alignment & Sonora Open-Source Engine",
+    org: "DysarthriaNet-XC Research Monorepo",
+    description:
+      "Regularized Correlation Alignment (CORAL) across multi-corpus acoustic distributions, deployed on Hugging Face ZeroGPU with full open-source code on GitHub.",
+    links: [
+      { label: "Sonora GitHub Repository", url: "https://github.com/LovishManchanda719/Sonora" },
+      { label: "Hugging Face Live Space", url: "https://huggingface.co/spaces/lovish719/dysarthria-api" },
+      { label: "CORAL AAAI Paper", url: "https://arxiv.org/abs/1511.05547" },
+    ],
+  },
+];
+
+const CLINICAL_REFERENCES = [
+  {
+    title: "ASHA Practice Portal — Dysarthria in Adults",
+    source: "American Speech-Language-Hearing Association (ASHA)",
+    description:
+      "Evidence-based clinical practice guidelines for differential diagnosis, subsystem assessment, and behavioral treatment of adult motor speech disorders.",
+    url: "https://www.asha.org/practice-portal/clinical-topics/dysarthria/",
+  },
+  {
+    title: "Mayo Clinic — Dysarthria Symptoms, Causes & Rehabilitation",
+    source: "Mayo Foundation for Medical Education and Research",
+    description:
+      "Patient and family clinical overview of neurological causes of dysarthria, diagnostic evaluation, and speech-language therapy strategies.",
+    url: "https://www.mayoclinic.org/diseases-conditions/dysarthria/symptoms-causes/syc-20371994",
+  },
+  {
+    title: "NIH / NIDCD — Voice, Speech, and Language Disorders",
+    source: "National Institute on Deafness and Other Communication Disorders (NIH)",
+    description:
+      "Federal clinical research repository covering apraxia, dysarthria, spasmodic dysphonia, and assistive communication technologies.",
+    url: "https://www.nidcd.nih.gov/health/voice-speech-and-language",
+  },
+  {
+    title: "Neurological Exam: Dysarthria & Dysphonia Clinical Video",
+    source: "Spencer S. Eccles Health Sciences Library (University of Utah)",
+    description:
+      "Clinical demonstration of motor speech examination (MSE) comparing articulatory dysarthria and phonatory dysphonia.",
+    url: "https://youtu.be/SMmoAByOX_U",
+  },
+  {
+    title: "Rehabilitation Council of India (RCI) & AIISH Mysuru",
+    source: "Ministry of Social Justice & Empowerment / MoHFW, Govt. of India",
+    description:
+      "Official statutory registry of licensed Audiologists and Speech-Language Pathologists (CRR) and India's apex national speech institute.",
+    url: "https://rehabcouncil.nic.in",
+  },
+  {
+    title: "Indian Speech and Hearing Association (ISHA)",
+    source: "National Professional Body of SLPs & Audiologists in India",
+    description:
+      "Clinical resources, public awareness guides, and nationwide directory of certified speech-language pathology practitioners.",
+    url: "https://ishaindia.org.in",
+  },
+];
+
 export default function AboutPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-12 pb-20 pt-2">
@@ -149,145 +329,179 @@ export default function AboutPage() {
       </div>
 
       {/* Datasets, Pre-Trained Backbones & Clinical References */}
-      <div className="bg-white rounded-3xl p-8 sm:p-10 border border-slate-100 shadow-soft-md space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-          <div>
-            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              Datasets, Pre-Trained Models &amp; Clinical References
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Direct links to the peer-reviewed speech corpora, foundation models, and medical literature powering Sonora.
-            </p>
+      <div id="datasets" className="scroll-mt-24 space-y-6">
+        {/* Section A: Training & Evaluation Speech Datasets */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-soft-md space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-clinical-cyan"></span>
+                <span className="text-xs font-bold uppercase tracking-wider text-clinical-cyan">
+                  31,634 Speech Recordings · 135 Patient &amp; Control Speakers
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
+                Clinical Speech Datasets &amp; Corpora Used in Sonora
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
+                Direct links to the peer-reviewed dysarthric speech corpora, official institutional repositories, and DOI publications used to train and cross-validate the DysarthriaNet-XC engine.
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 text-clinical-cyan border border-sky-200 text-[11px] font-bold shrink-0">
+              <Database className="h-3.5 w-3.5" />
+              <span>Multi-Corpus Benchmark</span>
+            </span>
           </div>
-          <Link
-            href="/resources?tab=datasets"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-clinical-cyan hover:underline shrink-0"
-          >
-            <span>Open Full Datasets &amp; Research Directory</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {DATASETS_USED.map((ds) => (
+              <div
+                key={ds.id}
+                className="p-5 sm:p-6 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-clinical-cyan/40 transition-all flex flex-col justify-between space-y-4"
+              >
+                <div className="space-y-2.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-white text-slate-800 font-bold text-[10px] uppercase border border-slate-200">
+                      {ds.language}
+                    </span>
+                    <span className="text-[11px] font-semibold text-clinical-cyan">
+                      {ds.institution}
+                    </span>
+                  </div>
+
+                  <h3 className="text-base font-extrabold text-slate-900">
+                    {ds.name}
+                  </h3>
+
+                  <p className="text-xs text-slate-700 font-semibold">
+                    Cohort: <span className="font-normal text-slate-600">{ds.cohort}</span>
+                  </p>
+
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {ds.roleInProject}
+                  </p>
+
+                  <div className="p-3 rounded-xl bg-white border border-slate-200/70 text-[11px] text-slate-500 font-mono leading-relaxed">
+                    {ds.citation}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  {ds.links.map((lk) => (
+                    <a
+                      key={lk.url}
+                      href={lk.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#14171A] hover:bg-black text-white text-xs font-bold transition-all shadow-soft-sm"
+                    >
+                      <span>{lk.label}</span>
+                      <ExternalLink className="h-3 w-3 text-vitality" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <a
-            href="https://www.cs.toronto.edu/~complingweb/data/TORGO/torgo.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-4 rounded-2xl bg-slate-50 hover:bg-sky-50/60 border border-slate-200/80 hover:border-clinical-cyan transition-all flex flex-col justify-between gap-2 group"
-          >
-            <div>
-              <div className="flex items-center justify-between text-[11px] font-bold text-clinical-cyan">
-                <span>University of Toronto</span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-900 mt-1 group-hover:text-clinical-cyan">
-                TORGO Dysarthria Database
-              </h4>
-              <p className="text-xs text-slate-600 mt-1">
-                English Cerebral Palsy (CP) &amp; ALS acoustic and articulatory corpus (Rudzicz et al., 2012).
-              </p>
+        {/* Section B: Pre-Trained Foundation Models & Open-Source Code */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-soft-md space-y-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <Cpu className="h-4 w-4 text-clinical-cyan" />
+              <span className="text-xs font-bold uppercase tracking-wider text-clinical-cyan">
+                Self-Supervised Acoustic Backbones &amp; Codebase
+              </span>
             </div>
-          </a>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
+              Pre-Trained Speech Foundation Models &amp; Open-Source Links
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Neural representations, domain alignment papers, Hugging Face model cards, and the Sonora monorepo.
+            </p>
+          </div>
 
-          <a
-            href="https://www.isca-archive.org/interspeech_2021/turrisi21_interspeech.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-4 rounded-2xl bg-slate-50 hover:bg-sky-50/60 border border-slate-200/80 hover:border-clinical-cyan transition-all flex flex-col justify-between gap-2 group"
-          >
-            <div>
-              <div className="flex items-center justify-between text-[11px] font-bold text-clinical-cyan">
-                <span>University of Genoa / IIT</span>
-                <ExternalLink className="h-3.5 w-3.5" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {FOUNDATION_MODELS.map((m) => (
+              <div
+                key={m.name}
+                className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/70 flex flex-col justify-between space-y-3"
+              >
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    {m.org}
+                  </span>
+                  <h3 className="text-sm font-extrabold text-slate-900 pt-1">
+                    {m.name}
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {m.description}
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  {m.links.map((lk) => (
+                    <a
+                      key={lk.url}
+                      href={lk.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-sky-50 text-slate-800 hover:text-clinical-cyan border border-slate-200 text-xs font-bold transition-all"
+                    >
+                      <FileText className="h-3 w-3 text-clinical-cyan" />
+                      <span>{lk.label}</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ))}
+                </div>
               </div>
-              <h4 className="text-sm font-extrabold text-slate-900 mt-1 group-hover:text-clinical-cyan">
-                EasyCall Dysarthric Corpus
-              </h4>
-              <p className="text-xs text-slate-600 mt-1">
-                Multi-etiology smartphone dysarthric speech dataset (Turrisi et al., Interspeech 2021).
-              </p>
-            </div>
-          </a>
+            ))}
+          </div>
+        </div>
 
-          <a
-            href="https://ieee-dataport.org/open-access/italian-parkinsons-voice-and-speech"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-4 rounded-2xl bg-slate-50 hover:bg-sky-50/60 border border-slate-200/80 hover:border-clinical-cyan transition-all flex flex-col justify-between gap-2 group"
-          >
-            <div>
-              <div className="flex items-center justify-between text-[11px] font-bold text-clinical-cyan">
-                <span>IEEE DataPort / Univ. of Bari</span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-900 mt-1 group-hover:text-clinical-cyan">
-                Italian Parkinson&apos;s Voice &amp; Speech (IPVS)
-              </h4>
-              <p className="text-xs text-slate-600 mt-1">
-                Hypokinetic Parkinson&apos;s disease phonation, DDK, and reading corpus (Dimauro et al., 2017).
-              </p>
+        {/* Section C: Clinical Literature & Speech-Language Pathology References */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-soft-md space-y-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">
+                Clinical Practice Portals &amp; Medical Literature
+              </span>
             </div>
-          </a>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
+              Clinical Speech-Language Pathology &amp; Research References
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Authoritative medical portals, rehabilitation frameworks, and statutory Indian speech-language pathology directories.
+            </p>
+          </div>
 
-          <a
-            href="http://www.isle.illinois.edu/sst/data/UASpeech/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-4 rounded-2xl bg-slate-50 hover:bg-sky-50/60 border border-slate-200/80 hover:border-clinical-cyan transition-all flex flex-col justify-between gap-2 group"
-          >
-            <div>
-              <div className="flex items-center justify-between text-[11px] font-bold text-clinical-cyan">
-                <span>UIUC Speech &amp; Hearing Science</span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-900 mt-1 group-hover:text-clinical-cyan">
-                UA-Speech Benchmark Reference
-              </h4>
-              <p className="text-xs text-slate-600 mt-1">
-                Intelligibility-stratified universal access dysarthric speech benchmark (Kim et al., 2008).
-              </p>
-            </div>
-          </a>
-
-          <a
-            href="https://huggingface.co/facebook/wav2vec2-base"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-4 rounded-2xl bg-slate-50 hover:bg-sky-50/60 border border-slate-200/80 hover:border-clinical-cyan transition-all flex flex-col justify-between gap-2 group"
-          >
-            <div>
-              <div className="flex items-center justify-between text-[11px] font-bold text-clinical-cyan">
-                <span>Meta AI / Hugging Face</span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-900 mt-1 group-hover:text-clinical-cyan">
-                Wav2Vec 2.0 &amp; WavLM Backbones
-              </h4>
-              <p className="text-xs text-slate-600 mt-1">
-                Self-supervised 16 kHz transformer speech representations (Baevski et al., NeurIPS 2020).
-              </p>
-            </div>
-          </a>
-
-          <a
-            href="https://www.asha.org/practice-portal/clinical-topics/dysarthria/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-4 rounded-2xl bg-slate-50 hover:bg-sky-50/60 border border-slate-200/80 hover:border-clinical-cyan transition-all flex flex-col justify-between gap-2 group"
-          >
-            <div>
-              <div className="flex items-center justify-between text-[11px] font-bold text-clinical-cyan">
-                <span>ASHA Clinical Practice Portal</span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </div>
-              <h4 className="text-sm font-extrabold text-slate-900 mt-1 group-hover:text-clinical-cyan">
-                ASHA Dysarthria Clinical Guidelines
-              </h4>
-              <p className="text-xs text-slate-600 mt-1">
-                Evidence-based motor speech evaluation and behavioral rehabilitation protocols.
-              </p>
-            </div>
-          </a>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {CLINICAL_REFERENCES.map((ref) => (
+              <a
+                key={ref.url}
+                href={ref.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/70 hover:border-clinical-cyan hover:bg-white transition-all flex flex-col justify-between gap-3 group"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-bold text-clinical-cyan">
+                      {ref.source}
+                    </span>
+                    <ExternalLink className="h-3.5 w-3.5 text-slate-400 group-hover:text-clinical-cyan shrink-0" />
+                  </div>
+                  <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-clinical-cyan transition-colors">
+                    {ref.title}
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {ref.description}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
 

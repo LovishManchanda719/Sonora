@@ -96,7 +96,7 @@ export function Footer() {
               </li>
               <li className="pt-0.5">
                 <Link
-                  href="/resources?tab=datasets"
+                  href="/about#datasets"
                   className="text-[11px] font-bold text-clinical-cyan hover:underline"
                 >
                   All Datasets, Models &amp; Research Links →
