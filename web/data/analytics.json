@@ -18,7 +18,7 @@
       "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocLTLi9yXFUyWAokt_epbmulV2yIMzHIX38lfdoLKh0H4tZN0yAY=s96-c",
       "screeningsCount": 0,
       "firstSeen": "2026-10-10T14:36:21.413Z",
-      "lastActive": "2026-10-11T09:22:32.337Z"
+      "lastActive": "2026-10-11T11:40:09.824Z"
     },
     "anon_5nhf8xn0": {
       "userId": "anon_5nhf8xn0",
@@ -36,7 +36,7 @@
       "sex": "Unspecified",
       "screeningsCount": 0,
       "firstSeen": "2026-10-10T14:36:21.428Z",
-      "lastActive": "2026-10-11T10:50:25.201Z"
+      "lastActive": "2026-10-11T11:34:00.858Z"
     },
     "guest_visitor": {
       "userId": "guest_visitor",
@@ -94,6 +94,71 @@
     }
   },
   "events": [
+    {
+      "id": "evt_1791718809825_cvqf",
+      "type": "page_view",
+      "path": "/",
+      "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+      "userEmail": "lovishmanchanda719@gmail.com",
+      "city": "New Delhi",
+      "country": "India",
+      "deviceType": "Desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "timestamp": "2026-10-11T11:40:09.824Z"
+    },
+    {
+      "id": "evt_1791718786093_3dis",
+      "type": "page_view",
+      "path": "/resources",
+      "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+      "userEmail": "lovishmanchanda719@gmail.com",
+      "city": "New Delhi",
+      "country": "India",
+      "deviceType": "Desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "timestamp": "2026-10-11T11:39:46.092Z"
+    },
+    {
+      "id": "evt_1791718770645_6ulh",
+      "type": "page_view",
+      "path": "/",
+      "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+      "userEmail": "lovishmanchanda719@gmail.com",
+      "city": "New Delhi",
+      "country": "India",
+      "deviceType": "Desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "timestamp": "2026-10-11T11:39:30.645Z"
+    },
+    {
+      "id": "evt_1791718770301_bpi8",
+      "type": "page_view",
+      "path": "/auth",
+      "userId": "Sv6b2l2PsxWAuuJTGMKDS5Sj7os1",
+      "userEmail": "lovishmanchanda719@gmail.com",
+      "city": "New Delhi",
+      "country": "India",
+      "deviceType": "Desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "timestamp": "2026-10-11T11:39:30.301Z"
+    },
+    {
+      "id": "evt_1791718440858_zq60",
+      "type": "page_view",
+      "path": "/auth",
+      "userId": "anon_5nhf8xn0",
+      "userEmail": "anonymous",
+      "city": "New Delhi",
+      "country": "India",
+      "deviceType": "Desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "timestamp": "2026-10-11T11:34:00.858Z"
+    },
     {
       "id": "evt_1791715825201_ordj",
       "type": "page_view",
