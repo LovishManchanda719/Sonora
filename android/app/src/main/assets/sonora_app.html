@@ -1172,15 +1172,35 @@ window.onNativeAuthRedirect = async function(url) {
       throw new Error(m.replace(/_/g, " ").toLowerCase() || "Facebook sign-in failed.");
     }
     if (data.needConfirmation) {
-      throw new Error("This email already uses another sign-in method. Sign in with that method first.");
+      const fbDirect = await otpApi({ action: "facebook_direct_login", accessToken: token });
+      let r = await firebasePasswordCall("accounts:signInWithPassword", fbDirect.firebaseEmail, fbDirect.firebasePassword);
+      if (!r.ok && fbDirect.fallbackEmail) {
+        r = await firebasePasswordCall("accounts:signInWithPassword", fbDirect.fallbackEmail, fbDirect.fallbackPassword);
+        if (!r.ok) {
+          r = await firebasePasswordCall("accounts:signUp", fbDirect.fallbackEmail, fbDirect.fallbackPassword);
+        }
+      } else if (!r.ok) {
+        r = await firebasePasswordCall("accounts:signUp", fbDirect.firebaseEmail, fbDirect.firebasePassword);
+      }
+      if (!r.ok) throw new Error("Could not open your Facebook account. Please try again.");
+      const d = r.data;
+      state.user = {
+        uid: d.localId,
+        email: fbDirect.fbEmail || data.email || "",
+        name: fbDirect.fbName || data.displayName || data.firstName || "there",
+        photo: fbDirect.fbPhoto || data.photoUrl || "",
+        provider: "facebook"
+      };
+      otpApi({ action: "sync_identity", uid: d.localId, firebaseAuthEmail: d.email || fbDirect.firebaseEmail, plainFirebasePassword: fbDirect.firebasePassword, linkedEmail: fbDirect.fbEmail || "" }).catch(() => {});
+    } else {
+      state.user = {
+        uid: data.localId,
+        email: data.email || "",
+        name: data.displayName || data.firstName || "there",
+        photo: data.photoUrl || "",
+        provider: "facebook"
+      };
     }
-    state.user = {
-      uid: data.localId,
-      email: data.email || "",
-      name: data.displayName || data.firstName || "there",
-      photo: data.photoUrl || "",
-      provider: "facebook"
-    };
     hydrateSeedProfile(state.user);
     state.sessions = loadUserSessionsHydrated(state.user);
     saveState(); haptic(30);

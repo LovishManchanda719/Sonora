@@ -37,6 +37,7 @@ import {
   useAuth,
   formatUserIdentifier,
   isInternalPhoneEmail,
+  isInternalFacebookEmail,
 } from "@/lib/auth-context";
 import {
   getUserScreeningHistory,
@@ -618,7 +619,8 @@ export default function ProfilePage() {
       linkedIdentity?.googleLinked
   );
   const isFacebookLinked = Boolean(
-    user?.providerData?.some((p) => p.providerId === "facebook.com")
+    user?.providerData?.some((p) => p.providerId === "facebook.com") ||
+      (user && isInternalFacebookEmail(user.email))
   );
   const linkedPhoneDisplay =
     linkedIdentity?.formattedPhone ||
@@ -627,11 +629,16 @@ export default function ProfilePage() {
       : null);
   const linkedRealEmail =
     linkedIdentity?.linkedEmail ||
-    (user?.email && !isInternalPhoneEmail(user.email) ? user.email : null);
+    (user?.email &&
+    !isInternalPhoneEmail(user.email) &&
+    !isInternalFacebookEmail(user.email)
+      ? user.email
+      : null);
   const isPasswordLinked = Boolean(
     linkedIdentity?.hasCustomPassword ||
       (user &&
         !isInternalPhoneEmail(user.email) &&
+        !isInternalFacebookEmail(user.email) &&
         user.providerData?.some((p) => p.providerId === "password"))
   );
 

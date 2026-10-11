@@ -49,12 +49,24 @@ export function isInternalPhoneEmail(email?: string | null): boolean {
   );
 }
 
+export function isInternalFacebookEmail(email?: string | null): boolean {
+  return Boolean(
+    email &&
+      email.startsWith("fb_") &&
+      email.endsWith("@sonora.speech.ai")
+  );
+}
+
 export function formatUserIdentifier(
   email?: string | null,
   displayName?: string | null,
   linkedIdentity?: LinkedIdentityInfo | null
 ): string {
-  if (linkedIdentity?.linkedEmail && !isInternalPhoneEmail(linkedIdentity.linkedEmail)) {
+  if (
+    linkedIdentity?.linkedEmail &&
+    !isInternalPhoneEmail(linkedIdentity.linkedEmail) &&
+    !isInternalFacebookEmail(linkedIdentity.linkedEmail)
+  ) {
     return linkedIdentity.linkedEmail;
   }
   if (isInternalPhoneEmail(email)) {
@@ -69,6 +81,9 @@ export function formatUserIdentifier(
       return `+91 ${ten.slice(0, 5)} ${ten.slice(5)}`;
     }
     return `+${digits}`;
+  }
+  if (isInternalFacebookEmail(email)) {
+    return displayName || "Facebook Account";
   }
   return displayName || email || "";
 }
@@ -211,10 +226,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     ? isInternalPhoneEmail(user.email) ||
       user.providerData?.some((p) => p.providerId === "phone")
       ? "phone"
+      : isInternalFacebookEmail(user.email) ||
+        user.providerData?.some((p) => p.providerId === "facebook.com")
+      ? "facebook"
       : user.providerData?.some((p) => p.providerId === "google.com")
       ? "google"
-      : user.providerData?.some((p) => p.providerId === "facebook.com")
-      ? "facebook"
       : "password"
     : null;
 
@@ -288,19 +304,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (code === "auth/account-exists-with-different-credential") {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pendingCred = FacebookAuthProvider.credentialFromError(err as any);
-        if (pendingCred) {
-          try {
-            const googleCred = await signInWithPopup(auth, googleProvider);
-            await linkWithCredential(googleCred.user, pendingCred);
+        const tokenFromErr =
+          pendingCred?.accessToken ||
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (err as any)?.customData?._tokenResponse?.oauthAccessToken ||
+          "";
+        if (tokenFromErr) {
+          const res = await fetch("/api/auth/otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "facebook_direct_login",
+              accessToken: tokenFromErr,
+            }),
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            let signedInUser: User;
+            let activeAuthEmail = String(data.firebaseEmail);
+            let activeAuthPass = String(data.firebasePassword);
+            try {
+              const c = await signInWithEmailAndPassword(
+                auth,
+                activeAuthEmail,
+                activeAuthPass
+              );
+              signedInUser = c.user;
+            } catch {
+              activeAuthEmail = String(data.fallbackEmail || data.firebaseEmail);
+              activeAuthPass = String(data.fallbackPassword || data.firebasePassword);
+              try {
+                const c = await signInWithEmailAndPassword(
+                  auth,
+                  activeAuthEmail,
+                  activeAuthPass
+                );
+                signedInUser = c.user;
+              } catch {
+                const c = await createUserWithEmailAndPassword(
+                  auth,
+                  activeAuthEmail,
+                  activeAuthPass
+                );
+                signedInUser = c.user;
+              }
+            }
+            if (data.fbName || data.fbPhoto) {
+              await updateProfile(signedInUser, {
+                displayName: signedInUser.displayName || data.fbName || undefined,
+                photoURL: signedInUser.photoURL || data.fbPhoto || undefined,
+              });
+            }
             await syncIdentityOnServer({
-              uid: googleCred.user.uid,
-              firebaseAuthEmail: googleCred.user.email || undefined,
-              linkedEmail: googleCred.user.email || undefined,
-              googleLinked: true,
+              uid: signedInUser.uid,
+              firebaseAuthEmail: activeAuthEmail,
+              plainFirebasePassword: activeAuthPass,
+              linkedEmail: data.fbEmail || undefined,
             });
             return;
-          } catch {
-            // Fall through to friendly message if user cancels the Google confirmation popup
           }
         }
       }

@@ -36,7 +36,7 @@
       "sex": "Unspecified",
       "screeningsCount": 0,
       "firstSeen": "2026-10-10T14:36:21.428Z",
-      "lastActive": "2026-10-11T09:25:45.026Z"
+      "lastActive": "2026-10-11T10:50:25.201Z"
     },
     "guest_visitor": {
       "userId": "guest_visitor",
@@ -94,6 +94,58 @@
     }
   },
   "events": [
+    {
+      "id": "evt_1791715825201_ordj",
+      "type": "page_view",
+      "path": "/auth",
+      "userId": "anon_5nhf8xn0",
+      "userEmail": "anonymous",
+      "city": "New Delhi",
+      "country": "India",
+      "deviceType": "Desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "timestamp": "2026-10-11T10:50:25.201Z"
+    },
+    {
+      "id": "evt_1791715803248_n7z3",
+      "type": "page_view",
+      "path": "/auth",
+      "userId": "anon_5nhf8xn0",
+      "userEmail": "anonymous",
+      "city": "New Delhi",
+      "country": "India",
+      "deviceType": "Desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "timestamp": "2026-10-11T10:50:03.248Z"
+    },
+    {
+      "id": "evt_1791712303854_jauj",
+      "type": "page_view",
+      "path": "/auth",
+      "userId": "anon_5nhf8xn0",
+      "userEmail": "anonymous",
+      "city": "New Delhi",
+      "country": "India",
+      "deviceType": "Desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "timestamp": "2026-10-11T09:51:43.854Z"
+    },
+    {
+      "id": "evt_1791711510018_pghd",
+      "type": "page_view",
+      "path": "/auth",
+      "userId": "anon_5nhf8xn0",
+      "userEmail": "anonymous",
+      "city": "New Delhi",
+      "country": "India",
+      "deviceType": "Desktop",
+      "browser": "Edge",
+      "os": "Windows",
+      "timestamp": "2026-10-11T09:38:30.018Z"
+    },
     {
       "id": "evt_1791710745027_a8aw",
       "type": "page_view",

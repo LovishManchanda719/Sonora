@@ -288,6 +288,7 @@ export async function POST(request: NextRequest) {
       googleLinked,
       hasCustomPassword,
       skipCaptchaForLinkedUser = false,
+      accessToken = "",
     } = body as {
       action:
         | "send"
@@ -296,7 +297,8 @@ export async function POST(request: NextRequest) {
         | "sync_identity"
         | "resolve_email"
         | "record_flow_send"
-        | "admin_set_used";
+        | "admin_set_used"
+        | "facebook_direct_login";
       countryCode?: string;
       mobileNumber?: string;
       code?: string;
@@ -313,7 +315,71 @@ export async function POST(request: NextRequest) {
       googleLinked?: boolean;
       hasCustomPassword?: boolean;
       skipCaptchaForLinkedUser?: boolean;
+      accessToken?: string;
     };
+
+    // 0. Primary Facebook Sign-In verification (bypasses Firebase same-email provider collision)
+    if (action === "facebook_direct_login") {
+      if (!accessToken) {
+        return NextResponse.json(
+          { success: false, error: "Missing Facebook access token." },
+          { status: 400, headers: CORS_HEADERS }
+        );
+      }
+      const fbRes = await fetch(
+        `https://graph.facebook.com/me?fields=id,name,email,picture.type(large)&access_token=${encodeURIComponent(
+          accessToken
+        )}`,
+        { cache: "no-store" }
+      );
+      const fbData = await fbRes.json().catch(() => null);
+      if (!fbRes.ok || !fbData?.id) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              fbData?.error?.message || "Could not verify Facebook token.",
+          },
+          { status: 401, headers: CORS_HEADERS }
+        );
+      }
+
+      const fbId = String(fbData.id);
+      const fbEmail = String(fbData.email || "").trim().toLowerCase();
+      const fbName = String(fbData.name || "Facebook User").trim();
+      const fbPhoto = String(fbData.picture?.data?.url || "").trim();
+
+      // Check if this email already has a stored password in identity-links.ts
+      const existingByEmail = fbEmail ? getIdentityByEmail(fbEmail) : null;
+      const existingPass = existingByEmail?.encryptedFirebasePassword
+        ? decryptSecret(existingByEmail.encryptedFirebasePassword)
+        : null;
+
+      const defaultFbEmail = `fb_${fbId}@sonora.speech.ai`;
+      const defaultFbPassword = `SnrFb!${crypto
+        .createHmac("sha256", CAPTCHA_SECRET)
+        .update(`sonora_fb_primary_${fbId}`)
+        .digest("base64url")
+        .slice(0, 22)}`;
+
+      return NextResponse.json(
+        {
+          success: true,
+          fbId,
+          fbName,
+          fbEmail,
+          fbPhoto,
+          firebaseEmail:
+            existingPass && existingByEmail?.firebaseAuthEmail
+              ? existingByEmail.firebaseAuthEmail
+              : defaultFbEmail,
+          firebasePassword: existingPass || defaultFbPassword,
+          fallbackEmail: defaultFbEmail,
+          fallbackPassword: defaultFbPassword,
+        },
+        { headers: CORS_HEADERS }
+      );
+    }
 
     // 1. Resolve linked email -> underlying Firebase auth email (Permutation A1)
     if (action === "resolve_email") {
