@@ -18,6 +18,7 @@ import {
   linkWithPopup,
   linkWithCredential,
   EmailAuthProvider,
+  FacebookAuthProvider,
   updateProfile,
 } from "firebase/auth";
 import { useSession, useUser, useDescope } from "@descope/nextjs-sdk/client";
@@ -283,6 +284,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         linkedEmail: cred.user.email || undefined,
       });
     } catch (err: unknown) {
+      const code = (err as { code?: string })?.code || "";
+      if (code === "auth/account-exists-with-different-credential") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pendingCred = FacebookAuthProvider.credentialFromError(err as any);
+        if (pendingCred) {
+          try {
+            const googleCred = await signInWithPopup(auth, googleProvider);
+            await linkWithCredential(googleCred.user, pendingCred);
+            await syncIdentityOnServer({
+              uid: googleCred.user.uid,
+              firebaseAuthEmail: googleCred.user.email || undefined,
+              linkedEmail: googleCred.user.email || undefined,
+              googleLinked: true,
+            });
+            return;
+          } catch {
+            // Fall through to friendly message if user cancels the Google confirmation popup
+          }
+        }
+      }
       throw new Error(friendlyFacebookError(err));
     }
   };
